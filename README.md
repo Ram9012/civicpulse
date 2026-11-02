@@ -42,7 +42,7 @@ npm run dev:web           # http://localhost:5173
 ## Team
 | Person | Role | Owns |
 |---|---|---|
-| Architect | System architect, reviewer, CI/CD | Everything not listed below, plus final say on all PRs |
+| Ramansh | System architect, reviewer, CI/CD | Everything not listed below, plus final say on all PRs |
 | Jerome | Frontend only | `apps/web/**` |
 | Bipin | Backend only | `apps/api/**` |
 
