@@ -23,7 +23,9 @@ export function createApp() {
       const { error } = await db().from("departments").select("id").limit(1);
       if (error) throw error;
       res.json({ ok: true, db: "up" });
-    } catch {
+    } catch (err) {
+      // Log the real reason (missing env, bad key, missing table) so "db down" is debuggable.
+      console.error("[health] db check failed:", err instanceof Error ? err.message : err);
       res.status(503).json({ ok: false, db: "down" });
     }
   });
