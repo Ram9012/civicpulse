@@ -1,5 +1,5 @@
 {
-  "_comment": "Single source of truth for who may change what. Used by scripts/scope-guard.js (local AI-agent hook) and scripts/check-scope.js (CI). Only the Architect edits this file. Replace the REPLACE_* GitHub usernames before enabling branch protection.",
+  "_comment": "Single source of truth for who may change what. Used by scripts/scope-guard.js (local AI-agent hook) and scripts/check-scope.js (CI). Only the Architect edits this file. Replace the REPLACE_* GitHub usernames before using the scope check.",
   "roles": {
     "architect": {
       "github": ["REPLACE_ARCHITECT_GITHUB_USERNAME"],
