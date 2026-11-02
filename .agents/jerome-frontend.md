@@ -21,6 +21,9 @@ You are assisting **Jerome**, who builds the **frontend**. Nothing else.
 - Adding the old site's clutter: announcement banners, fake counters, testimonials, hardcoded credentials, language switchers (stretch only).
 - Pushing to `main` or `dev`, or merging into either (push your feature branch and open a PR **into `dev`**).
 
+## Your task list
+`docs/handoff-jerome.md` lists your tasks (J1 to J8) in priority order with acceptance criteria, the pre-approved dependencies, and the rules. Do one task per PR. The product is already built; do not add features that are not on the list.
+
 ## What you do
 Per `docs/ux-guidelines.md` and `docs/scope.md`:
 - Pages and features under `apps/web/src/features/{auth,report,explore,my,staff,admin}`

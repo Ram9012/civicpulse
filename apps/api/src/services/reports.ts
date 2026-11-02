@@ -88,10 +88,17 @@ export async function fetchReport(id: string): Promise<ReportRow | null> {
   return (data as ReportRow | null) ?? null;
 }
 
-export async function fetchEvents(reportId: string): Promise<ReportEvent[]> {
+/**
+ * Timeline for a report. When the report is anonymous, events performed by the reporter
+ * are shown as "Anonymous reporter" so the name cannot leak through the public timeline.
+ */
+export async function fetchEvents(
+  reportId: string,
+  hide?: { anonymous: boolean; reporterId: string | null }
+): Promise<ReportEvent[]> {
   const { data } = await db()
     .from("report_events")
-    .select("id,report_id,from_status,to_status,note,created_at,actor:profiles(name)")
+    .select("id,report_id,from_status,to_status,note,created_at,actor_id,actor:profiles(name)")
     .eq("report_id", reportId)
     .order("created_at", { ascending: true });
   type Row = {
@@ -101,6 +108,7 @@ export async function fetchEvents(reportId: string): Promise<ReportEvent[]> {
     to_status: ReportStatus;
     note: string | null;
     created_at: string;
+    actor_id: string | null;
     actor: { name: string } | null;
   };
   return ((data ?? []) as unknown as Row[]).map((e) => ({
@@ -108,7 +116,10 @@ export async function fetchEvents(reportId: string): Promise<ReportEvent[]> {
     reportId: e.report_id,
     fromStatus: e.from_status,
     toStatus: e.to_status,
-    actorName: e.actor?.name ?? "System",
+    actorName:
+      hide?.anonymous && hide.reporterId && e.actor_id === hide.reporterId
+        ? "Anonymous reporter"
+        : (e.actor?.name ?? "System"),
     note: e.note,
     createdAt: e.created_at,
   }));
