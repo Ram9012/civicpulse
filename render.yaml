@@ -25,6 +25,8 @@ services:
         value: "false"
       - key: GROQ_API_KEY
         sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
 
   - type: web
     name: civicpulse-web
@@ -45,5 +47,5 @@ services:
         sync: false
       - key: VITE_SUPABASE_ANON_KEY
         sync: false
-      - key: VITE_USE_MOCKS
-        value: "false"
+      - key: VITE_SUPABASE_MEDIA_BUCKET
+        value: report-media
