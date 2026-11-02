@@ -3,7 +3,7 @@
 Goal for today: the app runs on your machine and you have opened one tiny PR.
 
 ## 1. Tools (15 min)
-- Node.js 20 or newer (`node -v`), npm, git
+- Node.js 22 or newer (Supabase needs the built-in WebSocket) (`node -v`), npm, git
 - A GitHub account (give your username to Ramansh so you are added to `.github/scope-map.json`)
 - An editor. If you use an AI agent, read [AGENTS.md](../AGENTS.md) first
 

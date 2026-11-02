@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "workspaces": ["packages/*", "apps/*"],
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22" },
   "scripts": {
     "build:contract": "npm run build -w packages/contract",
     "dev:web": "npm run build:contract && npm run dev -w apps/web",
