@@ -162,7 +162,7 @@ reportsRouter.get(
     const ups = await upvotedSet(req.user?.id, [row.id]);
     const detail: ReportDetail = {
       ...toReport(row, { upvoted: ups?.has(row.id), viewerId: req.user?.id, ai: true }),
-      events: await fetchEvents(row.id),
+      events: await fetchEvents(row.id, { anonymous: row.anonymous, reporterId: row.reporter_id }),
       aiSuggestion: row.ai_suggestion ?? null,
     };
     res.json(detail);

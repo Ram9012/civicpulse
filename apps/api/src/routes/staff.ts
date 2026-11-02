@@ -185,7 +185,7 @@ staffRouter.post(
     const updated = (await fetchReport(id))!;
     const detail: ReportDetail = {
       ...toReport(updated, { viewerId: user.id, ai: true }),
-      events: await fetchEvents(id),
+      events: await fetchEvents(id, { anonymous: updated.anonymous, reporterId: updated.reporter_id }),
       aiSuggestion: updated.ai_suggestion ?? null,
     };
     res.json(detail);

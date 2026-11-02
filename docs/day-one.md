@@ -32,13 +32,15 @@ npm run dev:web     # Jerome: http://localhost:5173
 3. [architecture.md](architecture.md): auth, upload and update flows
 4. `packages/contract/openapi.yaml`: the API you build or consume
 5. [ux-guidelines.md](ux-guidelines.md) (Jerome) or `apps/api/README.md` (Bipin)
+6. [status.md](status.md) and the ADR index [adr/README.md](adr/README.md): what exists and why
 
-## 6. Your first task
-All milestones (citizen, staff, admin, extras) are already built. Read the code before changing it; your first PRs are quality work.
+## 6. Your task list
+Everything is already built and deployed. Your work is a fixed, prioritised list with acceptance criteria:
 
-**Jerome**: Walk the app at 360px width as a citizen, staff member and admin. Fix layout, spacing and empty/error states you find, and add component tests for `ReportCard`, `StatusBadge` and the report wizard steps. Do not add features. PR title `fix(web): mobile polish and tests`.
+- **Jerome:** [handoff-jerome.md](handoff-jerome.md), start with **J1** (mobile and accessibility pass)
+- **Bipin:** [handoff-bipin.md](handoff-bipin.md), start with **B1** (privacy regression tests and audit)
 
-**Bipin**: Add API tests for the report routes and the staff transition rules (mock the Supabase client): invalid transitions return 409, staff cannot touch another department's report, anonymous reports never expose the reporter, `assigned` needs a valid worker, `resolved` needs a proof photo. Do not change response shapes. PR title `test(api): report and staff route coverage`.
+Read the code before changing it. Do one task per PR. Do not add features that are not on your list; ask Ramansh.
 
 ## 7. Open your first PR
 ```bash

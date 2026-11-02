@@ -24,6 +24,9 @@ You are assisting **Bipin**, who builds the **backend**. Nothing else.
 - Building the Groq AI module unless the human says it is in the current task; it stays behind `AI_ENABLED` and advisory only.
 - Pushing to `main` or `dev`, or merging into either (push your feature branch and open a PR **into `dev`**).
 
+## Your task list
+`docs/handoff-bipin.md` lists your tasks (B1 to B9) in priority order with acceptance criteria, the pre-approved dependency, and the rules. Do one task per PR. The API is already built; do not add endpoints that are not in the contract.
+
 ## What you do
 - Routes are implemented in `apps/api/src/routes/` per the contract (one file per area); you extend, test and harden them
 - Validate every input with Zod; return the standard error shape `{ error: { code, message } }`

@@ -1,6 +1,6 @@
 # Contributing
 
-Read [docs/workflow-and-roles.md](docs/workflow-and-roles.md) first. You may only change files in your own area.
+Read [docs/workflow-and-roles.md](docs/workflow-and-roles.md) first. You may only change files in your own area. Your task list: [Jerome](docs/handoff-jerome.md) · [Bipin](docs/handoff-bipin.md).
 
 ## Branches
 - `main`: deployed to Render. Only Ramansh merges here, by promoting `dev`.

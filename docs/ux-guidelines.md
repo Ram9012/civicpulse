@@ -21,13 +21,17 @@ The reference site was cluttered: banners, filler counters, 10-item admin sideba
 | Route | Who | Content |
 |---|---|---|
 | `/` | all | Headline, Report button, link to Explore |
-| `/explore` | all | List/map toggle, filters (category, status), search by area |
-| `/reports/:id` | all | Photo(s), status timeline, location (coarse), upvote |
+| `/explore` | all | List/map toggle, filters (category, status, area search), map tools (satellite, clusters, heatmap, export), saved-area filter |
+| `/reports/:id` | all | Photos/video, status timeline, location map, confirm, reopen / delete for the reporter or admin |
 | `/signin` | all | Sign in / sign up in one form with a toggle |
-| `/report` | citizen | 3-step wizard |
-| `/my` | citizen | My reports + notifications |
-| `/staff` | staff, admin | Queue + detail panel + action buttons |
-| `/admin` | admin | Analytics, routing table, departments/workers, users |
+| `/report` | signed in | 3-step wizard: photo, location, details (voice input, AI category hint, duplicate nudge) |
+| `/my` | signed in | Updates (notifications), my reports, saved areas |
+| `/staff` | staff, admin | Queue (list or map) + detail panel with allowed actions |
+| `/admin` | admin | Tabs: Analytics, Departments & routing, Workers, Users, Audit log |
+| `/how-it-works`, `/impact`, `/help` | all | Info pages; Impact shows live numbers |
+| (floating) | all | PulseBot assistant |
+
+Nav is Explore, Report, Queue (staff/admin), Admin (admin), plus a language picker and an Account menu (My reports, Sign out).
 
 ## Visual
 - Tailwind only. Small palette: one brand color, slate neutrals, four status colors.

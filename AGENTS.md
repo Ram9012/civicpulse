@@ -11,7 +11,7 @@ Your human tells you their name at the start of the session (for example "I'm Je
 | **Bipin** | Backend only | `apps/api/**` only (minus the files Ramansh owns) | `.agents/bipin-backend.md` |
 | **Ramansh** | System architect, reviewer, CI/CD, some backend | Whole repo | `.agents/ramansh-architect.md` |
 
-Once you know the name, read that role file and **look only at files in that scope**. Treat everything outside it as read-only reference: do not edit it, do not "fix" it, do not work around it. If the task needs something outside the scope, stop and tell your human who owns it (see the table above and `docs/workflow-and-roles.md`).
+Once you know the name, read that role file **and the task list it points to** (`docs/handoff-jerome.md` or `docs/handoff-bipin.md`), then **look only at files in that scope**. Work on the tasks in that order unless your human says otherwise. Treat everything outside it as read-only reference: do not edit it, do not "fix" it, do not work around it. If the task needs something outside the scope, stop and tell your human who owns it (see the table above and `docs/workflow-and-roles.md`).
 
 ## Step 2: Understand the project (5 minutes, no more)
 - `docs/overview.md`: what the product does

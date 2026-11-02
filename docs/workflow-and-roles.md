@@ -6,18 +6,20 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 | Area | Path | Owner | Others |
 |---|---|---|---|
 | Web app | `apps/web/**` | **Jerome** | read-only |
-| API + DB SQL | `apps/api/**` | **Bipin** | read-only |
+| API + DB SQL | `apps/api/**` (except the core files below) | **Bipin** | read-only |
 | API contract + shared types | `packages/contract/**` | **Ramansh** | read-only |
 | CI/CD, deploy, scope rules | `.github/**`, `render.yaml`, `scripts/**`, `.claude/**` | **Ramansh** | read-only |
 | Docs and agent rules | `docs/**`, `.agents/**`, `*.md` at root | **Ramansh** | read-only |
 | Root config | `package.json`, lockfile, `.env.example` | **Ramansh** | read-only |
+
+**Your exact task list:** [Jerome](handoff-jerome.md) · [Bipin](handoff-bipin.md). Background on decisions: [ADRs](adr/README.md). Current state: [status.md](status.md).
 
 ## Jerome (frontend only)
 **Does**
 - Every screen, component, route and style in `apps/web`
 - Wizard, Explore (list + map), My reports, Staff queue, Admin pages
 - API calls via `src/lib/api.ts` using types from `@civicpulse/contract`
-- Mock data under `apps/web/src/mocks/` so work is never blocked by the backend
+- Real API data everywhere in the product; test fixtures only inside tests
 - Component tests for logic-heavy components
 
 **Does not**
@@ -35,7 +37,7 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 - Writing `report_events` and `notifications` on every status change
 - SQL migrations in `apps/api/db/migrations/` (new numbered files only)
 - Seed data, API tests
-- Optional Groq AI module (only when told)
+- Tests, hardening and performance work on the existing AI module (`services/ai.ts`); turning Groq on is Ramansh's decision
 
 **Does not**
 - Touch anything outside `apps/api/**`
@@ -54,7 +56,7 @@ Reviews and merges every PR, owns the contract, CI/CD, deployment, Supabase/Rend
 ## When you need something outside your area
 1. Do **not** do it yourself.
 2. Open an issue using the feature template, tag the owner, describe what you need.
-3. Keep working on something else, or on your mock.
+3. Keep working on another task from your list.
 
 ## Milestones
 Built so far (see `docs/scope.md`): M1 citizen core, M2 staff workflow, M3 admin, M4 extras (languages, offline, voice, AI, map tools, info pages).
