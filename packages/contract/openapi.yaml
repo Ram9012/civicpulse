@@ -1,0 +1,203 @@
+openapi: 3.0.3
+info:
+  title: CivicPulse API
+  version: 0.1.0
+  description: >
+    Single source of truth between frontend (Jerome) and backend (Bipin).
+    Owned by the Architect. Change via an issue labelled `contract`, never in a feature PR.
+servers:
+  - url: http://localhost:4000
+  - url: https://civicpulse-api.onrender.com
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Liveness + DB ping (UptimeRobot target)
+      security: []
+      responses:
+        "200": { description: ok }
+
+  /me:
+    get:
+      summary: Current user profile (role, department)
+      tags: [auth]
+      responses:
+        "200": { description: Profile }
+
+  # ---------- Public / citizen ----------
+  /reports:
+    get:
+      summary: List reports. Public view hides reporter identity and exact address.
+      tags: [reports]
+      security: []
+      parameters:
+        - { name: category, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: q, in: query, schema: { type: string }, description: area search }
+        - { name: mine, in: query, schema: { type: boolean }, description: only my reports (auth) }
+        - { name: bbox, in: query, schema: { type: string }, description: "minLng,minLat,maxLng,maxLat" }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+      responses:
+        "200": { description: "{ items: Report[], total: number }" }
+    post:
+      summary: Create a report (citizen). Runs duplicate check; returns nearby candidates.
+      tags: [reports]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category, description, lat, lng, mediaIds]
+              properties:
+                category: { type: string }
+                description: { type: string, maxLength: 1000 }
+                lat: { type: number }
+                lng: { type: number }
+                anonymous: { type: boolean }
+                mediaIds: { type: array, items: { type: string } }
+      responses:
+        "201": { description: "{ report: Report, nearbyDuplicates: Report[] }" }
+
+  /reports/{id}:
+    get:
+      summary: Report detail with status timeline
+      tags: [reports]
+      security: []
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: ReportDetail }
+
+  /reports/{id}/upvote:
+    post:
+      summary: Confirm an existing report (toggle). Raises priority at thresholds.
+      tags: [reports]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: "{ upvotes: number, upvoted: boolean }" }
+
+  /reports/{id}/reopen:
+    post:
+      summary: Citizen reopens their resolved report
+      tags: [reports]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Report }
+
+  /media/upload-url:
+    post:
+      summary: Get a signed upload URL for a photo/video (browser uploads direct to Supabase Storage)
+      tags: [media]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, contentType]
+              properties:
+                kind: { type: string, enum: [photo, video] }
+                contentType: { type: string }
+                stage: { type: string, enum: [original, on_site, proof], default: original }
+      responses:
+        "200": { description: "{ mediaId, uploadUrl, publicUrl }" }
+
+  /notifications:
+    get:
+      summary: My notifications
+      tags: [notifications]
+      responses:
+        "200": { description: "Notification[]" }
+  /notifications/{id}/read:
+    post:
+      summary: Mark notification read
+      tags: [notifications]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "204": { description: ok }
+
+  /ai/suggest:
+    post:
+      summary: Advisory AI classification (only when AI_ENABLED=true)
+      tags: [ai]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { description: { type: string } }
+      responses:
+        "200": { description: AiSuggestion }
+        "501": { description: AI disabled }
+
+  # ---------- Staff ----------
+  /staff/reports:
+    get:
+      summary: Department queue (admin sees all)
+      tags: [staff]
+      parameters:
+        - { name: status, in: query, schema: { type: string } }
+        - { name: priority, in: query, schema: { type: string } }
+      responses:
+        "200": { description: "Report[]" }
+  /staff/reports/{id}/transition:
+    post:
+      summary: Move a report through the status machine. Server validates the transition and role.
+      tags: [staff]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { type: string, enum: [verified, assigned, in_progress, resolved, duplicate] }
+                workerId: { type: string, description: required when to=assigned }
+                departmentId: { type: string, description: optional override at verify }
+                priority: { type: string }
+                duplicateOf: { type: string, description: required when to=duplicate }
+                proofMediaId: { type: string, description: required when to=resolved }
+                note: { type: string }
+      responses:
+        "200": { description: ReportDetail }
+        "409": { description: Invalid transition }
+  /staff/workers:
+    get:
+      summary: Workers in my department
+      tags: [staff]
+      responses:
+        "200": { description: "Worker[]" }
+
+  # ---------- Admin ----------
+  /admin/analytics:
+    get:
+      summary: Counts by status/category/department + avg resolution days
+      tags: [admin]
+      responses:
+        "200": { description: Analytics }
+  /admin/departments:
+    get: { summary: List departments, tags: [admin], responses: { "200": { description: "Department[]" } } }
+    post: { summary: Create department, tags: [admin], responses: { "201": { description: Department } } }
+  /admin/workers:
+    get: { summary: List all workers, tags: [admin], responses: { "200": { description: "Worker[]" } } }
+    post: { summary: Create worker, tags: [admin], responses: { "201": { description: Worker } } }
+  /admin/routing:
+    get: { summary: Category to department rules, tags: [admin], responses: { "200": { description: "RoutingRule[]" } } }
+    put: { summary: Replace routing rules, tags: [admin], responses: { "200": { description: "RoutingRule[]" } } }
+  /admin/users/{id}/role:
+    put:
+      summary: Set a user's role/department
+      tags: [admin]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Profile }
+  /admin/audit-logs:
+    get: { summary: Audit log (read-only), tags: [admin], responses: { "200": { description: "ReportEvent[]" } } }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Supabase JWT

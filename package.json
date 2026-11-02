@@ -1,0 +1,17 @@
+{
+  "name": "civicpulse",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["packages/*", "apps/*"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build:contract": "npm run build -w packages/contract",
+    "dev:web": "npm run build:contract && npm run dev -w apps/web",
+    "dev:api": "npm run build:contract && npm run dev -w apps/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run build:contract && npm run typecheck --workspaces --if-present",
+    "test": "npm run build:contract && npm run test --workspaces --if-present",
+    "build": "npm run build:contract && npm run build --workspaces --if-present",
+    "check:scope": "node scripts/check-scope.js"
+  }
+}

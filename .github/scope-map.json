@@ -1,0 +1,20 @@
+{
+  "_comment": "Single source of truth for who may change what. Used by scripts/scope-guard.js (local AI-agent hook) and scripts/check-scope.js (CI). Only the Architect edits this file. Replace the REPLACE_* GitHub usernames before enabling branch protection.",
+  "roles": {
+    "architect": {
+      "github": ["REPLACE_ARCHITECT_GITHUB_USERNAME"],
+      "allow": ["**"]
+    },
+    "jerome": {
+      "description": "Frontend only",
+      "github": ["REPLACE_JEROME_GITHUB_USERNAME"],
+      "allow": ["apps/web/**"]
+    },
+    "bipin": {
+      "description": "Backend only",
+      "github": ["REPLACE_BIPIN_GITHUB_USERNAME"],
+      "allow": ["apps/api/**"],
+      "deny": ["apps/api/src/middleware/auth.ts", "apps/api/src/domain/statusMachine.ts", "apps/api/src/domain/statusMachine.test.ts"]
+    }
+  }
+}
