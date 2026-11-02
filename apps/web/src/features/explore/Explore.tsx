@@ -1,19 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  CATEGORIES,
-  CATEGORY_LABELS,
-  STATUS_LABELS,
-  type ReportListResponse,
-  type ReportStatus,
-} from "@civicpulse/contract";
+import { CATEGORIES, type ReportListResponse, type ReportStatus } from "@civicpulse/contract";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ReportCard } from "../../components/ReportCard";
 import { ReportsMap } from "../../components/maps";
 import { api } from "../../lib/api";
+import { useI18n, type Key } from "../../lib/i18n";
 
-const STATUSES = Object.keys(STATUS_LABELS) as ReportStatus[];
+const STATUSES: ReportStatus[] = ["submitted", "verified", "assigned", "in_progress", "resolved", "duplicate", "reopened"];
 
 export default function Explore() {
+  const { t } = useI18n();
+  const [sp, setSp] = useSearchParams();
+  const bbox = sp.get("bbox") ?? "";
+  const areaName = sp.get("area") ?? "";
   const [view, setView] = useState<"list" | "map">("list");
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
@@ -24,26 +24,30 @@ export default function Explore() {
   if (category) params.set("category", category);
   if (status) params.set("status", status);
   if (q.trim()) params.set("q", q.trim());
+  if (bbox) params.set("bbox", bbox);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["reports", category, status, q, page],
+    queryKey: ["reports", category, status, q, page, bbox],
     queryFn: () => api<ReportListResponse>(`/reports?${params}`),
   });
 
   const field = "min-h-11 rounded border bg-white px-3 text-sm";
-  const reset = (fn: () => void) => () => {
-    fn();
-    setPage(1);
-  };
+  const pages = data ? Math.ceil(data.total / 20) : 1;
 
   return (
     <main className="mx-auto max-w-3xl space-y-4 p-4">
-      <h1 className="text-2xl font-semibold">Explore reports</h1>
+      <h1 className="text-2xl font-semibold">{t("explore.title")}</h1>
+      {bbox && (
+        <p className="flex items-center gap-2 rounded bg-teal-50 p-2 text-sm">
+          Showing saved area <strong>{areaName || "custom"}</strong>
+          <button className="min-h-11 px-2 text-teal-700 underline" onClick={() => setSp({})}>Clear</button>
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         <input
           className={`${field} flex-1`}
-          placeholder="Search by area"
-          aria-label="Search by area"
+          placeholder={t("explore.search")}
+          aria-label={t("explore.search")}
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -59,9 +63,9 @@ export default function Explore() {
             setPage(1);
           }}
         >
-          <option value="">All categories</option>
+          <option value="">{t("explore.allCategories")}</option>
           {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+            <option key={c} value={c}>{t(`cat.${c}` as Key)}</option>
           ))}
         </select>
         <select
@@ -73,35 +77,33 @@ export default function Explore() {
             setPage(1);
           }}
         >
-          <option value="">All statuses</option>
+          <option value="">{t("explore.allStatuses")}</option>
           {STATUSES.map((s) => (
-            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+            <option key={s} value={s}>{t(`status.${s}` as Key)}</option>
           ))}
         </select>
         <div className="flex overflow-hidden rounded border text-sm" role="group" aria-label="View">
           {(["list", "map"] as const).map((v) => (
             <button
               key={v}
-              onClick={reset(() => setView(v))}
+              onClick={() => setView(v)}
               aria-pressed={view === v}
               className={`min-h-11 px-4 ${view === v ? "bg-teal-700 text-white" : "bg-white"}`}
             >
-              {v === "list" ? "List" : "Map"}
+              {t(v === "list" ? "explore.list" : "explore.map")}
             </button>
           ))}
         </div>
       </div>
 
-      {isLoading && <p className="text-slate-500">Loading reports...</p>}
+      {isLoading && <p className="text-slate-500">{t("explore.loading")}</p>}
       {error && <p role="alert" className="text-red-700">Could not load reports. {(error as Error).message}</p>}
       {data && data.items.length === 0 && (
-        <p className="rounded border bg-white p-6 text-center text-slate-600">
-          No reports match. Be the first to report an issue here.
-        </p>
+        <p className="rounded border bg-white p-6 text-center text-slate-600">{t("explore.empty")}</p>
       )}
       {data && data.items.length > 0 &&
         (view === "map" ? (
-          <ReportsMap reports={data.items} />
+          <ReportsMap reports={data.items} extras />
         ) : (
           <ul className="space-y-2">
             {data.items.map((r) => (
@@ -115,12 +117,8 @@ export default function Explore() {
           <button disabled={page === 1} onClick={() => setPage(page - 1)} className="min-h-11 px-3 disabled:opacity-40">
             ← Previous
           </button>
-          <span>Page {page} of {Math.ceil(data.total / 20)}</span>
-          <button
-            disabled={page >= Math.ceil(data.total / 20)}
-            onClick={() => setPage(page + 1)}
-            className="min-h-11 px-3 disabled:opacity-40"
-          >
+          <span>Page {page} of {pages}</span>
+          <button disabled={page >= pages} onClick={() => setPage(page + 1)} className="min-h-11 px-3 disabled:opacity-40">
             Next →
           </button>
         </div>

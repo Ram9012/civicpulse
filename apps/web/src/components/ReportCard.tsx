@@ -1,13 +1,15 @@
-import { CATEGORY_LABELS, type Report } from "@civicpulse/contract";
+import type { Report } from "@civicpulse/contract";
 import { Link } from "react-router-dom";
 import { formatDate } from "../lib/format";
+import { useI18n, type Key } from "../lib/i18n";
 import { PriorityBadge, StatusBadge } from "./badges";
 
-export function ReportCard({ report }: { report: Report }) {
+export function ReportCard({ report, to }: { report: Report; to?: string }) {
+  const { t } = useI18n();
   const photo = report.media.find((m) => m.kind === "photo");
   return (
     <Link
-      to={`/reports/${report.id}`}
+      to={to ?? `/reports/${report.id}`}
       className="flex gap-3 rounded-lg border bg-white p-3 hover:border-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-600"
     >
       {photo ? (
@@ -22,7 +24,7 @@ export function ReportCard({ report }: { report: Report }) {
         </div>
         <h3 className="mt-1 truncate font-medium">{report.title}</h3>
         <p className="truncate text-sm text-slate-500">
-          {CATEGORY_LABELS[report.category]} · {report.areaLabel}
+          {t(`cat.${report.category}` as Key)} · {report.areaLabel}
         </p>
         <p className="text-xs text-slate-400">
           {report.id} · {formatDate(report.createdAt)} · 👍 {report.upvotes}

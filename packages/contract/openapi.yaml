@@ -82,6 +82,14 @@ paths:
       responses:
         "200": { description: ReportDetail }
 
+    delete:
+      summary: Delete a report (reporter or admin). Audited.
+      tags: [reports]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "204": { description: deleted }
+        "403": { description: Not the reporter or an admin }
+
   /reports/{id}/upvote:
     post:
       summary: Confirm an existing report (toggle). Raises priority at thresholds.
@@ -170,6 +178,7 @@ paths:
                 departmentId: { type: string, description: optional override at verify }
                 priority: { type: string }
                 duplicateOf: { type: string, description: required when to=duplicate }
+                onSiteMediaId: { type: string, description: optional when to=in_progress }
                 proofMediaId: { type: string, description: required when to=resolved }
                 note: { type: string }
       responses:
@@ -207,6 +216,40 @@ paths:
         "200": { description: Profile }
   /admin/audit-logs:
     get: { summary: Audit log (read-only), tags: [admin], responses: { "200": { description: "ReportEvent[]" } } }
+
+  # ---------- M2-M4 additions (see docs/api-contract.md for the readable summary) ----------
+  /departments:
+    get: { summary: Department list, tags: [public], security: [], responses: { "200": { description: "Department[]" } } }
+  /stats/public:
+    get: { summary: Live public stats, tags: [public], security: [], responses: { "200": { description: PublicStats } } }
+  /ai/chat:
+    post:
+      summary: PulseBot assistant (optional auth)
+      tags: [ai]
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, maxLength: 500 }
+                history: { type: array, items: { type: object } }
+      responses:
+        "200": { description: "ChatResponse: { reply, source }" }
+  /me/areas:
+    get: { summary: My saved areas, tags: [me], responses: { "200": { description: "SavedArea[]" } } }
+    post: { summary: Save an area (max 10), tags: [me], responses: { "201": { description: SavedArea } } }
+  /me/areas/{id}:
+    delete:
+      summary: Delete a saved area
+      tags: [me]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "204": { description: ok }
+  /admin/users:
+    get: { summary: List users with email, role, department, tags: [admin], responses: { "200": { description: "AdminUser[]" } } }
 
 components:
   securitySchemes:

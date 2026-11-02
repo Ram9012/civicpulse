@@ -1,108 +1,178 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CATEGORIES,
-  CATEGORY_LABELS,
+  type AiSuggestion,
   type Category,
   type CreateReportInput,
   type CreateReportResponse,
   type Report,
-  type UploadUrlResponse,
 } from "@civicpulse/contract";
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReportCard } from "../../components/ReportCard";
 import { MapPicker } from "../../components/maps";
 import { api, post } from "../../lib/api";
-import { MEDIA_BUCKET, supabase } from "../../lib/supabase";
+import { LANGS, useI18n, type Key } from "../../lib/i18n";
+import { enqueue, isNetworkError } from "../../lib/offline";
+import { useSpeech } from "../../lib/speech";
+import { uploadFiles } from "../../lib/upload";
 
-interface Uploaded {
-  mediaId: string;
-  url: string;
-  kind: "photo" | "video";
-  name: string;
+interface Picked {
+  file: File;
+  preview: string;
 }
 
-const STEPS = ["Photo", "Location", "Details"];
+const DRAFT_KEY = "report-draft";
+interface Draft {
+  pin: { lat: number; lng: number } | null;
+  areaLabel: string;
+  category: Category | "";
+  description: string;
+  anonymous: boolean;
+}
+
+function loadDraft(): Draft {
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "null") as Draft | null;
+    if (d) return d;
+  } catch {
+    /* ignore */
+  }
+  return { pin: null, areaLabel: "", category: "", description: "", anonymous: false };
+}
 
 export default function ReportWizard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t, lang } = useI18n();
   const [step, setStep] = useState(0);
-  const [files, setFiles] = useState<Uploaded[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
-  const [areaLabel, setAreaLabel] = useState("");
+  const [picked, setPicked] = useState<Picked[]>([]);
+  const [draft, setDraft] = useState<Draft>(loadDraft);
   const [geoError, setGeoError] = useState<string | null>(null);
-  const [category, setCategory] = useState<Category | "">("");
-  const [description, setDescription] = useState("");
-  const [anonymous, setAnonymous] = useState(false);
+  const [offlineSaved, setOfflineSaved] = useState(false);
+  const previews = useRef<string[]>([]);
+  const { pin, areaLabel, category, description, anonymous } = draft;
+  const patch = (p: Partial<Draft>) => setDraft((d) => ({ ...d, ...p }));
 
-  async function onFiles(e: ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(e.target.files ?? []).slice(0, 5 - files.length);
-    e.target.value = "";
-    setUploading(true);
-    setUploadError(null);
+  // Text fields survive a refresh or a dropped connection (files cannot be stored in localStorage).
+  useEffect(() => {
     try {
-      const done: Uploaded[] = [];
-      for (const file of picked) {
-        const kind = file.type.startsWith("video/") ? "video" : "photo";
-        const signed = await post<UploadUrlResponse>("/media/upload-url", { kind, contentType: file.type });
-        const { error } = await supabase.storage.from(MEDIA_BUCKET).uploadToSignedUrl(signed.path, signed.token, file);
-        if (error) throw error;
-        done.push({ mediaId: signed.mediaId, url: signed.publicUrl, kind, name: file.name });
-      }
-      setFiles((f) => [...f, ...done]);
-    } catch (err) {
-      setUploadError((err as Error).message);
-    } finally {
-      setUploading(false);
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      /* ignore */
     }
+  }, [draft]);
+  useEffect(() => () => previews.current.forEach(URL.revokeObjectURL), []);
+
+  function onFiles(e: ChangeEvent<HTMLInputElement>) {
+    const next = Array.from(e.target.files ?? [])
+      .slice(0, 5 - picked.length)
+      .map((file) => {
+        const preview = URL.createObjectURL(file);
+        previews.current.push(preview);
+        return { file, preview };
+      });
+    e.target.value = "";
+    setPicked((p) => [...p, ...next]);
   }
 
   function locate() {
     setGeoError(null);
     if (!navigator.geolocation) return setGeoError("Location is not available on this device. Tap the map instead.");
     navigator.geolocation.getCurrentPosition(
-      (p) => setPin({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      (p) => patch({ pin: { lat: p.coords.latitude, lng: p.coords.longitude } }),
       () => setGeoError("Could not get your location. Tap the map to place the pin."),
       { enableHighAccuracy: true, timeout: 10_000 }
     );
   }
 
+  const speech = useSpeech(
+    LANGS.find((l) => l.code === lang)!.speech,
+    useCallback((text: string) => setDraft((d) => ({ ...d, description: `${d.description} ${text}`.trim() })), [])
+  );
+
+  // Advisory AI: suggest a category from the description (staff still review everything).
+  const [debounced, setDebounced] = useState("");
+  useEffect(() => {
+    const h = setTimeout(() => setDebounced(description.trim()), 700);
+    return () => clearTimeout(h);
+  }, [description]);
+  const suggestion = useQuery({
+    queryKey: ["ai-suggest", debounced],
+    queryFn: () => post<AiSuggestion>("/ai/suggest", { description: debounced }),
+    enabled: step === 2 && debounced.length >= 8 && navigator.onLine,
+    refetchInterval: false,
+    staleTime: Infinity,
+    retry: false,
+  });
+
   const nearby = useQuery({
     queryKey: ["nearby", pin?.lat, pin?.lng, category],
-    queryFn: () =>
-      api<Report[]>(`/reports/nearby?lat=${pin!.lat}&lng=${pin!.lng}&category=${category}`),
-    enabled: step === 2 && !!pin && !!category,
+    queryFn: () => api<Report[]>(`/reports/nearby?lat=${pin!.lat}&lng=${pin!.lng}&category=${category}`),
+    enabled: step === 2 && !!pin && !!category && navigator.onLine,
     refetchInterval: false,
+    retry: false,
   });
 
   const submit = useMutation({
-    mutationFn: () => {
-      const body: CreateReportInput = {
+    mutationFn: async () => {
+      const base: Omit<CreateReportInput, "mediaIds"> = {
         category: category as Category,
         description,
         lat: pin!.lat,
         lng: pin!.lng,
         areaLabel: areaLabel.trim() || undefined,
         anonymous,
-        mediaIds: files.map((f) => f.mediaId),
       };
-      return post<CreateReportResponse>("/reports", body);
+      const files = picked.map((p) => p.file);
+      if (!navigator.onLine) {
+        await enqueue(base, files);
+        return null;
+      }
+      try {
+        const mediaIds = await uploadFiles(files);
+        return await post<CreateReportResponse>("/reports", { ...base, mediaIds });
+      } catch (e) {
+        if (isNetworkError(e)) {
+          await enqueue(base, files);
+          return null;
+        }
+        throw e;
+      }
     },
     onSuccess: (res) => {
-      qc.invalidateQueries({ queryKey: ["reports"] });
-      navigate(`/reports/${res.report.id}`);
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
+      if (res) {
+        qc.invalidateQueries({ queryKey: ["reports"] });
+        navigate(`/reports/${res.report.id}`);
+      } else {
+        setOfflineSaved(true);
+      }
     },
   });
 
-  const canNext = step === 0 ? files.length > 0 && !uploading : step === 1 ? !!pin : !!category && description.trim().length >= 5;
+  const STEPS = [t("wiz.step1"), t("wiz.step2"), t("wiz.step3")];
+  const canNext = step === 0 ? picked.length > 0 : step === 1 ? !!pin : !!category && description.trim().length >= 5;
   const field = "mt-1 w-full rounded border px-3 py-2";
+
+  if (offlineSaved) {
+    return (
+      <main className="mx-auto max-w-xl space-y-4 p-4">
+        <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-4">{t("wiz.savedOffline")}</p>
+        <button onClick={() => navigate("/my")} className="min-h-11 rounded bg-teal-700 px-5 text-white">
+          {t("nav.my")}
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-xl space-y-5 p-4">
-      <h1 className="text-2xl font-semibold">Report an issue</h1>
+      <h1 className="text-2xl font-semibold">{t("wiz.title")}</h1>
       <ol className="flex gap-2 text-sm" aria-label="Progress">
         {STEPS.map((s, i) => (
           <li
@@ -117,34 +187,33 @@ export default function ReportWizard() {
 
       {step === 0 && (
         <section className="space-y-3">
-          <p className="text-slate-600">Add a photo or short video of the problem (up to 5).</p>
+          <p className="text-slate-600">{t("wiz.photoHelp")}</p>
           <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-white p-4 text-center text-teal-800">
-            {uploading ? "Uploading..." : "Take a photo or choose files"}
+            {t("wiz.choose")}
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
               capture="environment"
               multiple
               className="sr-only"
-              disabled={uploading || files.length >= 5}
+              disabled={picked.length >= 5}
               onChange={onFiles}
             />
           </label>
-          {uploadError && <p role="alert" className="text-sm text-red-700">{uploadError}</p>}
           <ul className="grid grid-cols-3 gap-2">
-            {files.map((f) => (
-              <li key={f.mediaId}>
-                {f.kind === "photo" ? (
-                  <img src={f.url} alt={f.name} className="h-24 w-full rounded object-cover" />
+            {picked.map((p) => (
+              <li key={p.preview}>
+                {p.file.type.startsWith("video/") ? (
+                  <video src={p.preview} className="h-24 w-full rounded object-cover" />
                 ) : (
-                  <video src={f.url} className="h-24 w-full rounded object-cover" />
+                  <img src={p.preview} alt={p.file.name} className="h-24 w-full rounded object-cover" />
                 )}
                 <button
                   type="button"
                   className="mt-1 min-h-11 w-full text-xs text-red-700"
-                  onClick={() => setFiles((x) => x.filter((y) => y.mediaId !== f.mediaId))}
+                  onClick={() => setPicked((x) => x.filter((y) => y.preview !== p.preview))}
                 >
-                  Remove
+                  {t("wiz.remove")}
                 </button>
               </li>
             ))}
@@ -154,20 +223,20 @@ export default function ReportWizard() {
 
       {step === 1 && (
         <section className="space-y-3">
-          <p className="text-slate-600">Tap the map to drop a pin, or use your location.</p>
+          <p className="text-slate-600">{t("wiz.mapHelp")}</p>
           <button type="button" onClick={locate} className="min-h-11 rounded border bg-white px-4">
-            📍 Use my location
+            📍 {t("wiz.locate")}
           </button>
           {geoError && <p role="alert" className="text-sm text-red-700">{geoError}</p>}
-          <MapPicker value={pin} onChange={(lat, lng) => setPin({ lat, lng })} />
+          <MapPicker value={pin} onChange={(lat, lng) => patch({ pin: { lat, lng } })} />
           <label className="block text-sm">
-            Area or landmark (shown publicly instead of your exact address)
+            {t("wiz.area")}
             <input
               className={field}
               value={areaLabel}
               maxLength={120}
               placeholder="e.g. Racecourse Road, Ward 12"
-              onChange={(e) => setAreaLabel(e.target.value)}
+              onChange={(e) => patch({ areaLabel: e.target.value })}
             />
           </label>
         </section>
@@ -176,32 +245,56 @@ export default function ReportWizard() {
       {step === 2 && (
         <section className="space-y-4">
           <label className="block text-sm">
-            What kind of problem is it?
-            <select className={field} value={category} onChange={(e) => setCategory(e.target.value as Category)}>
-              <option value="" disabled>Choose a category</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm">
-            Describe it briefly
+            {t("wiz.describe")}
             <textarea
               className={field}
               rows={4}
               maxLength={1000}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => patch({ description: e.target.value })}
             />
           </label>
+          {speech.supported && (
+            <button
+              type="button"
+              onClick={speech.toggle}
+              aria-pressed={speech.listening}
+              className={`min-h-11 rounded border px-4 text-sm ${speech.listening ? "bg-red-600 text-white" : "bg-white"}`}
+            >
+              🎤 {speech.listening ? t("wiz.listening") : t("wiz.voice")}
+            </button>
+          )}
+
+          {suggestion.data && suggestion.data.category !== category && suggestion.data.confidence >= 0.4 && (
+            <p className="flex flex-wrap items-center gap-2 rounded bg-teal-50 p-2 text-sm">
+              {t("wiz.aiSuggests")} <strong>{t(`cat.${suggestion.data.category}` as Key)}</strong>
+              <button
+                type="button"
+                className="min-h-11 rounded border bg-white px-3"
+                onClick={() => patch({ category: suggestion.data!.category })}
+              >
+                {t("wiz.use")}
+              </button>
+            </p>
+          )}
+
+          <label className="block text-sm">
+            {t("wiz.category")}
+            <select className={field} value={category} onChange={(e) => patch({ category: e.target.value as Category })}>
+              <option value="" disabled>{t("wiz.chooseCat")}</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{t(`cat.${c}` as Key)}</option>
+              ))}
+            </select>
+          </label>
           <label className="flex min-h-11 items-center gap-2 text-sm">
-            <input type="checkbox" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} />
-            Hide my name on public pages
+            <input type="checkbox" checked={anonymous} onChange={(e) => patch({ anonymous: e.target.checked })} />
+            {t("wiz.anonymous")}
           </label>
 
           {nearby.data && nearby.data.length > 0 && (
             <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
-              <p className="mb-2 text-sm font-medium">Already reported nearby? Confirm it instead of filing a new one:</p>
+              <p className="mb-2 text-sm font-medium">{t("wiz.nearby")}</p>
               <ul className="space-y-2">
                 {nearby.data.map((r) => (
                   <li key={r.id}><ReportCard report={r} /></li>
@@ -220,7 +313,7 @@ export default function ReportWizard() {
           onClick={() => setStep(step - 1)}
           className="min-h-11 rounded border bg-white px-5 disabled:opacity-40"
         >
-          Back
+          {t("wiz.back")}
         </button>
         {step < 2 ? (
           <button
@@ -229,7 +322,7 @@ export default function ReportWizard() {
             onClick={() => setStep(step + 1)}
             className="min-h-11 rounded bg-teal-700 px-6 font-medium text-white disabled:opacity-40"
           >
-            Next
+            {t("wiz.next")}
           </button>
         ) : (
           <button
@@ -238,7 +331,7 @@ export default function ReportWizard() {
             onClick={() => submit.mutate()}
             className="min-h-11 rounded bg-teal-700 px-6 font-medium text-white disabled:opacity-40"
           >
-            {submit.isPending ? "Submitting..." : "Submit report"}
+            {submit.isPending ? t("wiz.submitting") : t("wiz.submit")}
           </button>
         )}
       </div>

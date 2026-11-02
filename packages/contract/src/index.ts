@@ -71,6 +71,8 @@ export interface Worker {
   name: string;
   departmentId: string;
   active: boolean;
+  capacity?: number;
+  activeTasks?: number; // assigned + in_progress right now
 }
 
 export interface MediaItem {
@@ -105,6 +107,8 @@ export interface Report {
   reporterName: string | null; // null when anonymous
   upvotes: number;
   upvoted?: boolean; // present only when the caller is logged in
+  mine?: boolean; // present only when the caller is logged in
+  aiSuggestion?: AiSuggestion | null; // staff queue + detail only
   media: MediaItem[];
   createdAt: string;
   updatedAt: string;
@@ -121,6 +125,8 @@ export interface AiSuggestion {
   departmentId: string | null;
   confidence: number; // 0..1
   summary: string;
+  keywords?: string[];
+  source?: "groq" | "rules";
 }
 
 export interface Notification {
@@ -163,6 +169,99 @@ export interface UploadUrlResponse {
   path: string;
   token: string;
   publicUrl: string;
+}
+
+export interface TransitionInput {
+  to: "verified" | "assigned" | "in_progress" | "resolved" | "duplicate";
+  workerId?: string; // required when to=assigned
+  departmentId?: string; // optional override at verify
+  priority?: Priority; // optional change at verify
+  duplicateOf?: string; // required when to=duplicate
+  onSiteMediaId?: string; // optional when to=in_progress
+  proofMediaId?: string; // required when to=resolved
+  note?: string;
+}
+
+export interface RoutingRule {
+  category: Category;
+  departmentId: string;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  departmentId: string | null;
+}
+
+export interface AuditEntry {
+  id: string;
+  at: string;
+  actor: string;
+  action: string;
+  target: string | null;
+  detail: string | null;
+}
+
+export interface SavedArea {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  radiusKm: number;
+}
+
+export interface DepartmentStats {
+  id: string;
+  name: string;
+  open: number;
+  resolvedThisMonth: number;
+  avgDays: number | null;
+  workers: number;
+}
+
+export interface WeeklyPoint {
+  week: string; // e.g. "3 Nov"
+  submitted: number;
+  resolved: number;
+}
+
+export interface Analytics {
+  totals: {
+    total: number;
+    open: number;
+    resolved: number;
+    resolvedThisMonth: number;
+    avgResolutionDays: number | null;
+    reopenedRate: number; // 0..1
+    duplicateRate: number; // 0..1
+  };
+  byStatus: Partial<Record<ReportStatus, number>>;
+  byCategory: Partial<Record<Category, number>>;
+  weekly: WeeklyPoint[];
+  departments: DepartmentStats[];
+  hotspots: { area: string; count: number; category: Category }[];
+  workers: Worker[];
+}
+
+export interface PublicStats {
+  reportsSubmitted: number;
+  issuesResolved: number;
+  departmentsConnected: number;
+  avgResponseDays: number | null;
+  departments: DepartmentStats[];
+  weekly: WeeklyPoint[];
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  source: "groq" | "rules";
 }
 
 export interface ApiError {

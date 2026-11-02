@@ -1,16 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CATEGORY_LABELS, type ReportDetail } from "@civicpulse/contract";
-import { Link, useParams } from "react-router-dom";
+import type { ReportDetail } from "@civicpulse/contract";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { PriorityBadge, StatusBadge } from "../../components/badges";
 import { ReportsMap } from "../../components/maps";
 import { api, post } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import { formatDateTime } from "../../lib/format";
+import { useDepartments } from "../../lib/hooks";
+import { useI18n, type Key } from "../../lib/i18n";
 
 export default function ReportDetailPage() {
   const { id = "" } = useParams();
   const qc = useQueryClient();
-  const { session } = useAuth();
+  const navigate = useNavigate();
+  const { session, profile } = useAuth();
+  const { t } = useI18n();
+  const { name: deptName } = useDepartments();
   const { data: r, isLoading, error } = useQuery({
     queryKey: ["report", id],
     queryFn: () => api<ReportDetail>(`/reports/${id}`),
@@ -22,11 +27,22 @@ export default function ReportDetailPage() {
   };
   const upvote = useMutation({ mutationFn: () => post(`/reports/${id}/upvote`), onSuccess: refresh });
   const reopen = useMutation({ mutationFn: () => post(`/reports/${id}/reopen`), onSuccess: refresh });
+  const remove = useMutation({
+    mutationFn: () => api(`/reports/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      navigate("/explore");
+    },
+  });
 
   if (isLoading) return <p className="p-6 text-slate-500">Loading...</p>;
   if (error || !r) return <p role="alert" className="p-6 text-red-700">Report not found.</p>;
 
-  const ownResolved = r.status === "resolved" && session;
+  const isAdmin = profile?.role === "admin";
+  const canReopen = r.status === "resolved" && (r.mine || isAdmin);
+  const canDelete = r.mine || isAdmin;
+  const actionError = upvote.error || reopen.error || remove.error;
+
   return (
     <main className="mx-auto max-w-3xl space-y-5 p-4">
       <Link to="/explore" className="text-sm text-teal-700 underline">← Back to reports</Link>
@@ -38,7 +54,7 @@ export default function ReportDetailPage() {
         </div>
         <h1 className="mt-1 text-2xl font-semibold">{r.title}</h1>
         <p className="text-sm text-slate-500">
-          {CATEGORY_LABELS[r.category]} · {r.areaLabel} · {r.reporterName ?? "Anonymous"}
+          {t(`cat.${r.category}` as Key)} · {r.areaLabel} · {deptName(r.departmentId)} · {r.reporterName ?? "Anonymous"}
         </p>
       </header>
 
@@ -74,15 +90,21 @@ export default function ReportDetailPage() {
             Sign in to confirm ({r.upvotes})
           </Link>
         )}
-        {ownResolved && (
+        {canReopen && (
           <button onClick={() => reopen.mutate()} className="min-h-11 rounded border bg-white px-4">
             Not fixed? Reopen
           </button>
         )}
+        {canDelete && (
+          <button
+            onClick={() => confirm("Delete this report permanently?") && remove.mutate()}
+            className="min-h-11 rounded border bg-white px-4 text-red-700"
+          >
+            Delete
+          </button>
+        )}
       </div>
-      {(upvote.error || reopen.error) && (
-        <p role="alert" className="text-sm text-red-700">{((upvote.error || reopen.error) as Error).message}</p>
-      )}
+      {actionError && <p role="alert" className="text-sm text-red-700">{(actionError as Error).message}</p>}
 
       <section>
         <h2 className="mb-2 font-semibold">Timeline</h2>
