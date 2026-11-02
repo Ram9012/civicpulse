@@ -15,7 +15,7 @@ The whole API is built and deployed: reports, media uploads, notifications, staf
 | Business logic | `src/services/{reports,analytics,ai,audit}.ts` |
 | Errors and async wrapper | `src/lib/http.ts` |
 | **Not yours** (call, do not edit) | `src/middleware/auth.ts` (`requireAuth`, `optionalAuth`, `requireRole`), `src/domain/statusMachine.ts` (`canTransition`) |
-| Schema | `db/migrations/0001` to `0003`, `db/seed.sql` |
+| Schema | `db/migrations/0001` to `0004`, `db/seed.sql` |
 | Contract (read-only for you) | `packages/contract/openapi.yaml`, `src/index.ts` |
 
 Run it: `npm install`, copy `.env.example` to `.env` (Ramansh gives you the Supabase values and a service-role key), `npm run dev:api`, open `http://localhost:4000/health`. Tests: `npm run test -w apps/api`. Rules to know first: [ADR 0002](adr/0002-api-only-writer.md), [ADR 0006](adr/0006-status-machine-and-event-log.md).
@@ -32,7 +32,7 @@ Do one task per PR (small PRs, into `dev`). Each lists **what**, **acceptance cr
 - **What:** test the routes without a real database by mocking `src/db.ts` with `vi.mock` and a small fake query builder.
 - **Allowed new dev dependency (pre-approved):** `supertest` (and `@types/supertest`).
 - **Cover at least:** reports list hides reporter for anonymous; create requires auth and ownership of the attached media (400 otherwise); upvote toggles and bumps priority at 5 (high) and 10 (critical); reopen only by owner or admin and only from `resolved` (409 otherwise); delete only by owner or admin; staff transition matrix: invalid transition is 409, other department is 403, `assigned` needs an active worker of that department (400), `resolved` needs a proof photo (400), `duplicate` needs `duplicateOf` (400); admin routes return 403 for staff; role update: staff needs a department, an admin cannot demote themselves.
-- **Accept:** `npm run test -w apps/api` passes locally and in CI; every error branch in `routes/staff.ts` and `routes/reports.ts` has a test.
+- **Accept:** `npm run test -w apps/api` passes locally and in CI; every error branch in `routes/staff.ts` and `routes/reports.ts` has a test, including a test that a failed Supabase query surfaces as a 500 and not as an empty result.
 
 ### B3. Rate limiting
 - **What:** an in-memory sliding-window limiter in `src/middleware/rateLimit.ts`, **no new dependency**. Suggested limits: `POST /reports` 10 per hour per user, `POST /media/upload-url` 60 per hour per user, `POST /ai/suggest` 30 per hour per user, `POST /ai/chat` 20 per 10 minutes per IP (behind Render's proxy: set Express `trust proxy` and use `req.ip`). Over the limit returns 429 with the standard error shape and a `Retry-After` header. Put the numbers in the rules config (B7) or as named constants.
@@ -72,6 +72,7 @@ Do one task per PR (small PRs, into `dev`). Each lists **what**, **acceptance cr
 - Never apply migrations to the shared Supabase project and never touch real data. Write numbered SQL files (never edit an applied one); Ramansh runs them after review.
 - New dependencies only the pre-approved `supertest` above. Anything else: ask first.
 - Never log or return secrets, tokens, or the service-role key.
+- Never ignore the `error` from a Supabase call, and name the relationship in every embed that could be ambiguous (`profiles!reporter_id`). See the gotchas in `apps/api/README.md` and [ADR 0012](adr/0012-node-22-and-deploy.md).
 
 ## Branch and PR flow
 ```bash

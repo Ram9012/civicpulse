@@ -12,10 +12,14 @@
 | `Cannot find module '@civicpulse/contract'` | Run `npm run build:contract` (dev scripts do this automatically) |
 | `/health` says `native WebSocket not found` | API runs on Node 20. Set `NODE_VERSION=22` on Render (ADR 0012) |
 | `/health` 503 locally | Root `.env` missing or wrong; the API log prints `[health] db check failed: ...` |
-| Reports fail with a missing column error | Migrations `0002`/`0003` not applied in Supabase |
+| Reports fail with a missing column error | Migrations `0002`/`0003`/`0004` not applied in Supabase |
 | Staff cannot assign anyone | No active worker in that department. Admin > Workers |
 | Staff sees an empty queue | Their profile has no department. Admin > Users |
 | New role not visible | Role is cached for the session; sign out and in |
 | Web shows old API URL | `VITE_*` values are baked in at build time; redeploy with "Clear build cache" |
 | Assistant/AI always gives simple answers | `AI_ENABLED` is not `true` or `GROQ_API_KEY` is missing; the fallback is intentional |
 | Sign-up says `Database error saving new user` | Migration `0004_fix_signup_trigger.sql` not applied (the sign-up trigger could not find `profiles`) |
+| Explore says `Unexpected token '<'` | `VITE_API_URL` is empty or wrong on the web service, so requests hit the web site. Set the full API URL, rebuild with cache cleared (ADR 0012) |
+| "Something went wrong" on submit | Generic 500. Open Render > API > Logs for the real error (the API logs it) |
+| `Cannot read properties of null` or `PGRST201` in API logs | Ambiguous PostgREST embed or a swallowed query error. Name the relationship (`profiles!reporter_id`) and throw on `error` (ADR 0012) |
+| CORS error in the browser after fixing the URL | `CORS_ORIGIN` on the API must equal the web URL exactly, with no trailing slash |

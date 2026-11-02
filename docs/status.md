@@ -1,6 +1,6 @@
 # Project status
 
-Last updated after the M1 to M4 merge and first deploy. Maintained by Ramansh.
+Last updated after the first deploy and the first round of production fixes. Maintained by Ramansh.
 
 ## What exists today
 Everything on the reference site's feature list is built, with our own cleaner UX and real authentication. It is deployed: web (Render static site), API (Render web service), database/auth/storage (Supabase), keep-alive (UptimeRobot).
@@ -36,7 +36,7 @@ Everything on the reference site's feature list is built, with our own cleaner U
 | Web app | `apps/web` |
 | API | `apps/api` (routes in `src/routes`, logic in `src/services`, rules in `src/domain`) |
 | API contract + shared types | `packages/contract` |
-| Database schema | `apps/api/db/migrations/0001` to `0003`, seed in `seed.sql` |
+| Database schema | `apps/api/db/migrations/0001` to `0004`, seed in `seed.sql` |
 | Decisions and reasons | `docs/adr/` |
 | What Jerome / Bipin do next | `docs/handoff-jerome.md`, `docs/handoff-bipin.md` |
 
@@ -46,12 +46,25 @@ Everything on the reference site's feature list is built, with our own cleaner U
 | #1 | M1 citizen core |
 | #2 | M2 to M4 |
 | #3 | Promote `dev` to `main` (first deploy) |
-| direct | CI/Render contract-build fix; Node 22 fix |
+| #4, #5 | Docs, ADRs, task lists, anonymous-timeline privacy fix; Jerome and Bipin set in the scope map |
+| #6 | Sign-up trigger fix (migration 0004); web tolerates a bad `VITE_API_URL` |
+| #7 | Fix `POST /reports` 500 and Explore: disambiguated PostgREST embeds, query errors now thrown |
+| direct | CI/Render contract-build fix; Node 22 fix; scope-map usernames |
 
 ## Verified vs not verified
 - **Verified in CI and locally:** lint, typecheck, build, 13 API unit tests (status machine, distance, AI rules, analytics).
-- **Verified live:** both builds succeed and `/health` reports the database up.
+- **Verified live:** both builds succeed and `/health` reports the database up. The sign-up, API-URL and report-submit failures below were found by using the deployed site and are fixed.
 - **Not yet verified by anyone:** the full end-to-end flow in a browser (citizen submits, staff processes, admin analytics), Groq with a real key, voice input on real devices, offline sync on a real phone, Kannada and Hindi wording. Run the test checklist in PR #2 and record findings as issues.
+
+## Incidents found in first use (all fixed, details in [ADR 0012](adr/0012-node-22-and-deploy.md))
+| Symptom | Cause | Fix |
+|---|---|---|
+| CI and Render build: cannot find `@civicpulse/contract` | contract `dist` not built first | build contract before everything |
+| `/health` db down locally | root `.env` not loaded from the API folder | explicit path in `config.ts` |
+| `/health`: native WebSocket not found | Node 20 on Render | Node 22 |
+| "Database error saving new user" | sign-up trigger could not resolve `profiles` | migration `0004` |
+| Explore: `Unexpected token '<'` | empty `VITE_API_URL`, requests hit the web site | set the URL; code now validates it |
+| "Something went wrong" on submit | ambiguous PostgREST embed, error swallowed, null crash | named embeds, errors thrown |
 
 ## Known limitations
 - Translations cover the main flows, not every admin or info string (J4).
@@ -64,7 +77,7 @@ Everything on the reference site's feature list is built, with our own cleaner U
 - Branch protection on `main` and `dev` is a GitHub setting Ramansh must turn on.
 
 ## Ramansh's own to-do
-1. Confirm migrations `0002` and `0003` are applied in Supabase.
+1. Confirm migrations `0002`, `0003` and `0004` are applied in Supabase.
 2. Promote an admin; add workers per department; create a staff account.
 3. Run the end-to-end checklist and file issues.
 4. Add `jeromejohn123` and `bipin523396` as collaborators (their usernames are already in `.github/scope-map.json`).

@@ -15,3 +15,10 @@ npm run test -w apps/api
 - Every status change must insert a `report_events` row and notify the reporter (`notifications`).
 - Validate every request body with Zod. Never trust the client for role, department or reporter id.
 - Schema changes: add a new numbered file in `db/migrations/`. Never edit an applied migration.
+
+## Gotchas (each one has already cost us a deploy)
+- **Check every Supabase `error`.** `const { data } = await ...` silently drops failures. Destructure `error` and `throw` it, or the caller sees `null`.
+- **Name embedded relationships.** Use `profiles!reporter_id(name)`, not `profiles(name)`. Link tables (`upvotes`, `notifications`) create extra paths and PostgREST rejects ambiguous embeds.
+- **Pin `search_path` in `security definer` SQL functions** and schema-qualify tables (`public.profiles`).
+- **Load env from the repo root.** `src/config.ts` resolves the root `.env`; npm runs this workspace with its own folder as the working directory.
+- **Node 22 only.** `supabase-js` needs a native `WebSocket`.
