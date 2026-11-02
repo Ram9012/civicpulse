@@ -33,14 +33,14 @@ process.stdin.on("end", () => {
       /* not a repo */
     }
 
-    const isMain = (r) => /(^|:|\/)(main|master)$/.test(r);
+    const isMain = (r) => /(^|:|\/)(main|master|dev)$/.test(r);
     const pushesAll = args.includes("--all") || args.includes("--mirror");
     const hitsMain = refs.length ? refs.some(isMain) : isMain(current) || current === "";
 
     if (hitsMain || pushesAll) {
       console.error(
-        "GIT GUARD: pushing directly to main is not allowed for your role. " +
-          "Create a branch (feat/<name>-<topic>), push that branch, and open a PR. The Architect merges to main."
+        "GIT GUARD: pushing directly to main or dev is not allowed for your role. " +
+          "Create a branch (feat/<name>-<topic>), push that branch, and open a PR. Target the PR at dev. The Architect merges."
       );
       process.exit(2);
     }
