@@ -2,7 +2,7 @@
 
 ## One-time setup
 1. **GitHub**: create repo, push `main`. Add collaborators. Replace the `REPLACE_*` usernames in `.github/scope-map.json` and `.github/CODEOWNERS`.
-3. **Supabase**: new project. SQL editor: run `apps/api/db/migrations/0001_init.sql`, then `apps/api/db/seed.sql`. Storage: create public bucket `report-media`. Auth: enable email/password; disable email confirmation for the prototype if you want faster demos.
+2. **Supabase**: new project. SQL editor: run `apps/api/db/migrations/0001_init.sql`, then `apps/api/db/seed.sql`. Storage: create public bucket `report-media`. Auth: enable email/password; disable email confirmation for the prototype if you want faster demos.
 3. **Make yourself admin**: sign up in the app, then `update profiles set role='admin' where id='<your uuid>';`
 4. **Render**: New > Blueprint > pick the repo (reads `render.yaml`). Set the `sync: false` secrets in the dashboard. Set `CORS_ORIGIN` to the web URL and `VITE_API_URL` to the API URL.
 5. **UptimeRobot**: HTTP(s) monitor on `https://<api>.onrender.com/health`, interval 5 min. Its purpose is to stop Render's free tier from spinning the API down. (Side effect: `/health` runs a trivial DB query, which also counts as Supabase activity.)
