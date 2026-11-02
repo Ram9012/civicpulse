@@ -33,4 +33,4 @@ Three people, two of whom (Jerome, Bipin) develop with AI agents (Antigravity). 
 ## Consequences
 - Instructions are not a technical lock. Until branch protection is enabled on `main` and `dev`, nothing stops someone pushing directly from their own terminal. Enabling it is a GitHub setting Ramansh owns.
 - Edits to the rules themselves (`scope-map.json`) are Ramansh-only.
-- The Jerome/Bipin GitHub usernames in `scope-map.json` and `CODEOWNERS` must be real, or the scope check rejects their PRs.
+- The GitHub usernames in `scope-map.json` must match the PR authors (Ram9012, jeromejohn123, bipin523396), or the scope check rejects their PRs. `CODEOWNERS` lists only Ramansh.

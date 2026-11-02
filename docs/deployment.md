@@ -1,7 +1,7 @@
 # Deployment (Ramansh)
 
 ## One-time setup
-1. **GitHub**: create repo, push `main`. Add collaborators. Replace the Jerome and Bipin `REPLACE_*` usernames in `.github/scope-map.json` (Ramansh is already set to `Ram9012`).
+1. **GitHub**: create repo, push `main`. Add collaborators. Usernames in `.github/scope-map.json` are set (Ram9012, jeromejohn123, bipin523396); update them there if anyone changes accounts.
 2. **Supabase**: new project. SQL editor: run every file in `apps/api/db/migrations/` in numeric order (`0001` to `0003`), then `apps/api/db/seed.sql`. Run any new migration before merging the code that needs it. Storage: create public bucket `report-media`. Auth: enable email/password; disable email confirmation for the prototype if you want faster demos.
 3. **Make yourself admin**: sign up in the app, then `update profiles set role='admin' where id='<your uuid>';`
 4. **Render**: New > Blueprint > pick the repo (reads `render.yaml`). Set the `sync: false` secrets in the dashboard. Set `CORS_ORIGIN` to the web URL and `VITE_API_URL` to the API URL.

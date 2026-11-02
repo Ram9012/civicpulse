@@ -1,5 +1,5 @@
 {
-  "_comment": "Single source of truth for who may change what. Used by scripts/check-scope.js (CI) and the optional local hooks. Only Ramansh edits this file. Replace the remaining REPLACE_* GitHub usernames (Jerome, Bipin) before using the scope check.",
+  "_comment": "Single source of truth for who may change what. Used by scripts/check-scope.js (CI) and the optional local hooks. Only Ramansh edits this file. GitHub usernames must match the PR author exactly (case-insensitive).",
   "roles": {
     "ramansh": {
       "description": "System architect",
@@ -8,12 +8,12 @@
     },
     "jerome": {
       "description": "Frontend only",
-      "github": ["REPLACE_JEROME_GITHUB_USERNAME"],
+      "github": ["jeromejohn123"],
       "allow": ["apps/web/**"]
     },
     "bipin": {
       "description": "Backend only",
-      "github": ["REPLACE_BIPIN_GITHUB_USERNAME"],
+      "github": ["bipin523396"],
       "allow": ["apps/api/**"],
       "deny": ["apps/api/src/middleware/auth.ts", "apps/api/src/domain/statusMachine.ts", "apps/api/src/domain/statusMachine.test.ts"]
     }

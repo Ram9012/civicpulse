@@ -67,6 +67,6 @@ Everything on the reference site's feature list is built, with our own cleaner U
 1. Confirm migrations `0002` and `0003` are applied in Supabase.
 2. Promote an admin; add workers per department; create a staff account.
 3. Run the end-to-end checklist and file issues.
-4. Add Jerome and Bipin as collaborators; replace the placeholder usernames in `.github/scope-map.json` and `.github/CODEOWNERS`.
+4. Add `jeromejohn123` and `bipin523396` as collaborators (their usernames are already in `.github/scope-map.json`).
 5. Turn on branch protection for `main` and `dev`.
 6. Optional: set `AI_ENABLED=true` and `GROQ_API_KEY` after updating the privacy text (ADR 0007).
