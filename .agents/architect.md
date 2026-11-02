@@ -20,7 +20,6 @@ Whole repository (`CONTRIB_ROLE=architect`).
 - CI green
 
 ## Still forbidden
-- `git push`, merge, force-push or remote changes unless the Architect explicitly asks in this session
 - Applying migrations to the shared database without the Architect running them
 - Adding new infrastructure or services without an ADR in `docs/adr/`
 - Committing secrets

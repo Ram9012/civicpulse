@@ -9,17 +9,19 @@
             "command": "node \"$CLAUDE_PROJECT_DIR/scripts/scope-guard.js\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/git-guard.js\""
+          }
+        ]
       }
     ]
   },
   "permissions": {
-    "deny": [
-      "Bash(git push:*)",
-      "Bash(git remote add:*)",
-      "Bash(git remote set-url:*)",
-      "Bash(git merge:*)",
-      "Read(./.env)",
-      "Read(./.env.*)"
-    ]
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
   }
 }

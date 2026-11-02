@@ -22,7 +22,7 @@ You are assisting **Bipin**, who builds the **backend**. Nothing else.
 - Logging or returning secrets, tokens or the service-role key.
 - Adding npm packages, queues, caches, ORMs, or new services (ask the Architect).
 - Building the Groq AI module unless the human says it is in the current task; it stays behind `AI_ENABLED` and advisory only.
-- `git push`, merging, or editing remotes.
+- Pushing to `main` or merging into it (push your feature branch and open a PR instead; `scripts/git-guard.js` blocks main).
 
 ## What you do
 - Implement stubs in `apps/api/src/routes/` per the contract; one file per area

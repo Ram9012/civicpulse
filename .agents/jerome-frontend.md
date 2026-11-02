@@ -19,7 +19,7 @@ You are assisting **Jerome**, who builds the **frontend**. Nothing else.
 - Adding npm packages (ask the Architect). State/UI libs beyond React, React Router, TanStack Query, Tailwind, Leaflet are not needed.
 - Using any secret other than public `VITE_*` values. Never reference the service-role key.
 - Adding the old site's clutter: announcement banners, fake counters, testimonials, hardcoded credentials, language switchers (stretch only).
-- `git push`, merging, or editing remotes.
+- Pushing to `main` or merging into it (push your feature branch and open a PR instead; `scripts/git-guard.js` blocks main).
 
 ## What you do
 Per `docs/ux-guidelines.md` and `docs/scope.md`:
