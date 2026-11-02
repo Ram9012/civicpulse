@@ -55,10 +55,23 @@ paths:
                 description: { type: string, maxLength: 1000 }
                 lat: { type: number }
                 lng: { type: number }
+                areaLabel: { type: string, maxLength: 120 }
                 anonymous: { type: boolean }
                 mediaIds: { type: array, items: { type: string } }
       responses:
         "201": { description: "{ report: Report, nearbyDuplicates: Report[] }" }
+
+  /reports/nearby:
+    get:
+      summary: Open reports of the same category within ~100 m, last 7 days (duplicate nudge before submit)
+      tags: [reports]
+      security: []
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number } }
+        - { name: lng, in: query, required: true, schema: { type: number } }
+        - { name: category, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: "Report[]" }
 
   /reports/{id}:
     get:
@@ -100,7 +113,7 @@ paths:
                 contentType: { type: string }
                 stage: { type: string, enum: [original, on_site, proof], default: original }
       responses:
-        "200": { description: "{ mediaId, uploadUrl, publicUrl }" }
+        "200": { description: "UploadUrlResponse: { mediaId, path, token, publicUrl }" }
 
   /notifications:
     get:
