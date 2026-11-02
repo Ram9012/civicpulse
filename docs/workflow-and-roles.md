@@ -48,6 +48,9 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 ## Architect
 Reviews and merges every PR, owns the contract, CI/CD, deployment, Supabase/Render/UptimeRobot setup, and some backend core (auth middleware, status machine).
 
+## Branching
+`feat/*` (from `dev`) -> PR into `dev` -> Architect merges -> Architect promotes `dev` into `main` -> Render deploys. Contributors never PR or push to `main`.
+
 ## When you need something outside your area
 1. Do **not** do it yourself.
 2. Open an issue using the feature template, tag the owner, describe what you need.

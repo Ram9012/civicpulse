@@ -8,7 +8,7 @@
 5. **UptimeRobot**: HTTP(s) monitor on `https://<api>.onrender.com/health`, interval 5 min. Its purpose is to stop Render's free tier from spinning the API down. (Side effect: `/health` runs a trivial DB query, which also counts as Supabase activity.)
 
 ## Deploy flow
-Merge to `main` -> Render auto-deploys both services. Nothing else deploys. Migrations are applied by the Architect by hand in Supabase **before** merging the code that needs them.
+Contributor PRs merge into `dev` (nothing deploys). When `dev` is stable the Architect merges `dev` into `main` -> Render auto-deploys both services. Nothing else deploys. Migrations are applied by the Architect by hand in Supabase **before** merging the code that needs them.
 
 ## Secrets
 Only in Render and Supabase dashboards and local `.env` files. The service-role key must never reach the web app or git.

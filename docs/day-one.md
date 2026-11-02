@@ -40,6 +40,7 @@ npm run dev:web     # Jerome: http://localhost:5173
 
 ## 7. Open your first PR
 ```bash
+git checkout dev && git pull
 git checkout -b feat/<yourname>-<topic>
 # work, then
 npm run lint && npm run typecheck && npm run test && npm run build
@@ -47,7 +48,7 @@ git add <only your files>
 git commit -m "feat(web): home page"
 git push -u origin feat/<yourname>-<topic>
 ```
-Open a PR using the template. CI must be green. The Architect reviews; do not merge it yourself.
+Open a PR **into `dev`** (never `main`) using the template. CI must be green. The Architect reviews; do not merge it yourself.
 
 ## 8. Using an AI agent
 Set your role before starting it, so the scope guard knows who you are:

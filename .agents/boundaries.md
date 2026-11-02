@@ -11,7 +11,7 @@
 
 Enforcement layers (defence in depth):
 1. **Instructions**: `AGENTS.md` and the role files in this folder.
-2. **Local hooks**: `.claude/settings.json` runs `scripts/scope-guard.js` before every file edit and `scripts/git-guard.js` before every shell command, both reading `CONTRIB_ROLE`. Scope-guard blocks edits outside the role's paths; git-guard blocks direct pushes to `main` for everyone except the Architect, who has no restrictions. Blocks use exit code 2.
+2. **Local hooks**: `.claude/settings.json` runs `scripts/scope-guard.js` before every file edit and `scripts/git-guard.js` before every shell command, both reading `CONTRIB_ROLE`. Scope-guard blocks edits outside the role's paths; git-guard blocks direct pushes to `main` and `dev` for everyone except the Architect, who has no restrictions. Blocks use exit code 2.
 3. **CI**: `scope-check.yml` fails PRs that touch files outside the author's allowlist (read from the base branch, so a PR cannot widen its own permissions).
 4. **Review**: CODEOWNERS requires the Architect on every PR; only the Architect merges.
 

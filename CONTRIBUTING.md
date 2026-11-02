@@ -2,18 +2,23 @@
 
 Read [docs/workflow-and-roles.md](docs/workflow-and-roles.md) first. You may only change files in your own area.
 
+## Branches
+- `main`: deployed to Render. Only the Architect merges here, by promoting `dev`.
+- `dev`: integration branch. **All your PRs target `dev`, never `main`.**
+- `feat/*`, `fix/*`, `chore/*`: your work, branched from `dev`.
+
 ## Flow
 1. Pick (or be assigned) an issue. One issue = one small PR.
-2. Branch from `main`: `feat/<name>-<topic>`, `fix/<name>-<topic>`, `chore/<name>-<topic>`.
+2. Branch from the latest `dev` (`git checkout dev && git pull`): `feat/<name>-<topic>`, `fix/<name>-<topic>`, `chore/<name>-<topic>`.
 3. Make the change. Keep it small (aim for under ~400 changed lines).
 4. Run locally: `npm run lint && npm run typecheck && npm run test && npm run build`.
 5. Commit with Conventional Commits: `feat(web): ...`, `fix(api): ...`, `docs: ...`.
-6. Push and open a PR with the template filled in. Frontend PRs include mobile screenshots; backend PRs include request/response examples.
+6. Push and open a PR **into `dev`** with the template filled in. Frontend PRs include mobile screenshots; backend PRs include request/response examples.
 7. CI must be green (lint, typecheck, test, build, scope).
-8. The Architect reviews. Address comments with new commits. **Do not merge your own PR.**
+8. The Architect reviews and merges into `dev`. Address comments with new commits. **Do not merge your own PR.**
 
 ## Rules
-- Never commit to `main`. Never force-push shared branches.
+- Never commit or push to `main` or `dev`. Never force-push shared branches.
 - Never commit `.env`, keys, or tokens. If you leaked one, tell the Architect immediately.
 - No new dependencies, services or tools without Architect approval.
 - No drive-by refactors or formatting changes in unrelated files.

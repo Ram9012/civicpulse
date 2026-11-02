@@ -1,4 +1,4 @@
-# Render Blueprint. Auto-deploys from `main` only. Secrets (sync: false) are set in the Render dashboard.
+# Render Blueprint. Auto-deploys from `main` only (dev is integration, never deployed). Secrets (sync: false) are set in the Render dashboard.
 services:
   - type: web
     name: civicpulse-api

@@ -2,6 +2,7 @@
 <!-- One or two sentences. Link the issue: Closes #__ -->
 
 ## Scope
+- [ ] This PR targets `dev` (not `main`)
 - [ ] I only changed files in my own area (Jerome: `apps/web/**`, Bipin: `apps/api/**`)
 - [ ] No new dependency (or I explained it below and the Architect approved)
 - [ ] No secrets, `.env` files, or keys in this PR

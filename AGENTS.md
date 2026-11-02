@@ -23,7 +23,7 @@ CivicPulse is a **prototype**: React + Vite web, Express API, Supabase, deployed
 
 ## Universal hard rules (all roles)
 1. **Only edit files inside your role's allowed paths** (see your role file and `.github/scope-map.json`). The local hook `scripts/scope-guard.js` will block violations. Do not try to route around it (shell redirects, `sed -i`, `git apply`, copying files, renaming, symlinks). A block means stop and tell the human.
-2. **Never push to `main` (or `master`), and never merge into it.** Work on a branch (`feat/<name>-<topic>`), commit when your human asks, push that branch, and open a PR. The Architect merges. A hook (`scripts/git-guard.js`) blocks direct pushes to main for everyone except the Architect.
+2. **Never push to `main` or `dev`, and never merge into them.** Branch from `dev` (`feat/<name>-<topic>`), commit when your human asks, push that branch, and open a PR **targeting `dev`** (never `main`). The Architect merges to `dev` and promotes `dev` to `main`. A hook (`scripts/git-guard.js`) blocks direct pushes to both for everyone except the Architect.
 3. **Never create, read aloud, print, or commit secrets** (`.env`, keys, tokens, passwords). Only edit `.env.example` if you are the Architect. Never put the Supabase service-role key anywhere in `apps/web`.
 4. **No new dependencies, services, tools, or config** without the Architect's approval. Ask first; do not run `npm install <new package>`.
 5. **Stay on the task.** No drive-by refactors, renames, reformatting, or "improvements" to code you were not asked to touch. No speculative features.
