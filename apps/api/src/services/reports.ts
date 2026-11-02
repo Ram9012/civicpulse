@@ -16,6 +16,7 @@ export const REPORT_SELECT =
 
 export interface ReportRow {
   id: string;
+  reporter_id: string | null;
   anonymous: boolean;
   title: string;
   description: string;
@@ -39,7 +40,13 @@ export function mediaUrl(path: string): string {
   return db().storage.from(config.mediaBucket).getPublicUrl(path).data.publicUrl;
 }
 
-export function toReport(row: ReportRow, upvoted?: boolean): Report {
+export interface ToReportOpts {
+  upvoted?: boolean;
+  viewerId?: string;
+  ai?: boolean; // include the AI suggestion (staff views)
+}
+
+export function toReport(row: ReportRow, opts: ToReportOpts = {}): Report {
   return {
     id: row.id,
     title: row.title,
@@ -55,7 +62,9 @@ export function toReport(row: ReportRow, upvoted?: boolean): Report {
     // Anonymous reports never expose the reporter on any endpoint.
     reporterName: row.anonymous ? null : (row.reporter?.name ?? null),
     upvotes: row.upvotes?.[0]?.count ?? 0,
-    ...(upvoted === undefined ? {} : { upvoted }),
+    ...(opts.upvoted === undefined ? {} : { upvoted: opts.upvoted }),
+    ...(opts.viewerId ? { mine: row.reporter_id === opts.viewerId } : {}),
+    ...(opts.ai ? { aiSuggestion: row.ai_suggestion ?? null } : {}),
     media: (row.report_media ?? []).map((m) => ({
       id: m.id,
       kind: m.kind,

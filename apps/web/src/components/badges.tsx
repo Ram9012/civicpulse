@@ -1,4 +1,5 @@
-import { STATUS_LABELS, type Priority, type ReportStatus } from "@civicpulse/contract";
+import type { Priority, ReportStatus } from "@civicpulse/contract";
+import { useI18n, type Key } from "../lib/i18n";
 
 const STATUS_STYLE: Record<ReportStatus, { cls: string; icon: string }> = {
   submitted: { cls: "bg-slate-100 text-slate-700", icon: "○" },
@@ -12,11 +13,12 @@ const STATUS_STYLE: Record<ReportStatus, { cls: string; icon: string }> = {
 
 /** Status is always text + icon + color, never color alone. */
 export function StatusBadge({ status }: { status: ReportStatus }) {
+  const { t } = useI18n();
   const s = STATUS_STYLE[status];
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${s.cls}`}>
       <span aria-hidden>{s.icon}</span>
-      {STATUS_LABELS[status]}
+      {t(`status.${status}` as Key)}
     </span>
   );
 }
@@ -29,5 +31,10 @@ const PRIORITY_STYLE: Record<Priority, string> = {
 };
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
-  return <span className={`text-xs uppercase tracking-wide ${PRIORITY_STYLE[priority]}`}>{priority}</span>;
+  const { t } = useI18n();
+  return (
+    <span className={`text-xs uppercase tracking-wide ${PRIORITY_STYLE[priority]}`}>
+      {t(`priority.${priority}` as Key)}
+    </span>
+  );
 }

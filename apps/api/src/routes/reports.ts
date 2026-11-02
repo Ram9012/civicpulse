@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
 import { CATEGORIES, type Priority, type ReportDetail } from "@civicpulse/contract";
+import { config } from "../config.js";
 import { canTransition } from "../domain/statusMachine.js";
 import { db } from "../db.js";
 import { HttpError, wrap } from "../lib/http.js";
+import { audit } from "../services/audit.js";
+import { suggest } from "../services/ai.js";
 import { optionalAuth, requireAuth } from "../middleware/auth.js";
 import {
   REPORT_SELECT,
@@ -25,6 +28,10 @@ const listQuery = z.object({
   status: z.string().optional(),
   q: z.string().max(80).optional(),
   mine: z.enum(["true", "false"]).optional(),
+  bbox: z
+    .string()
+    .regex(/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/)
+    .optional(), // minLng,minLat,maxLng,maxLat
   page: z.coerce.number().int().min(1).default(1),
 });
 
@@ -44,6 +51,10 @@ reportsRouter.get(
       const t = f.q.replace(/[,()%*]/g, " ").trim();
       if (t) q = q.or(`area_label.ilike.%${t}%,title.ilike.%${t}%`);
     }
+    if (f.bbox) {
+      const [minLng, minLat, maxLng, maxLat] = f.bbox.split(",").map(Number) as [number, number, number, number];
+      q = q.gte("lat", minLat).lte("lat", maxLat).gte("lng", minLng).lte("lng", maxLng);
+    }
     if (f.mine === "true") {
       if (!req.user) throw new HttpError(401, "unauthenticated", "Sign in to see your reports");
       q = q.eq("reporter_id", req.user.id);
@@ -52,7 +63,7 @@ reportsRouter.get(
     if (error) throw error;
     const rows = (data ?? []) as unknown as ReportRow[];
     const ups = await upvotedSet(req.user?.id, rows.map((r) => r.id));
-    res.json({ items: rows.map((r) => toReport(r, ups?.has(r.id))), total: count ?? 0 });
+    res.json({ items: rows.map((r) => toReport(r, { upvoted: ups?.has(r.id), viewerId: req.user?.id })), total: count ?? 0 });
   })
 );
 
@@ -69,7 +80,7 @@ reportsRouter.get(
     const f = nearbyQuery.parse(req.query);
     const rows = await findNearby(f.lat, f.lng, f.category as never);
     const ups = await upvotedSet(req.user?.id, rows.map((r) => r.id));
-    res.json(rows.map((r) => toReport(r, ups?.has(r.id))));
+    res.json(rows.map((r) => toReport(r, { upvoted: ups?.has(r.id), viewerId: req.user?.id })));
   })
 );
 
@@ -102,6 +113,7 @@ reportsRouter.post(
     }
 
     const { data: rule } = await db().from("routing_rules").select("department_id").eq("category", b.category).maybeSingle();
+    const ai = await suggest(b.description).catch(() => null); // advisory only, never blocks a report
     const firstLine = b.description.split(/[.\n]/)[0]!.trim();
     const title = firstLine.length > 80 ? `${firstLine.slice(0, 77)}...` : firstLine;
 
@@ -117,6 +129,7 @@ reportsRouter.post(
         lng: b.lng,
         area_label: b.areaLabel || `${b.lat.toFixed(3)}, ${b.lng.toFixed(3)}`,
         department_id: rule?.department_id ?? null,
+        ai_suggestion: ai ? { ...ai, departmentId: rule?.department_id ?? null } : null,
       })
       .select("id")
       .single();
@@ -136,7 +149,7 @@ reportsRouter.post(
       fetchReport(created.id),
       findNearby(b.lat, b.lng, b.category as never, created.id),
     ]);
-    res.status(201).json({ report: toReport(row!, false), nearbyDuplicates: dupes.map((d) => toReport(d)) });
+    res.status(201).json({ report: toReport(row!, { upvoted: false, viewerId: user.id }), nearbyDuplicates: dupes.map((d) => toReport(d, { viewerId: user.id })) });
   })
 );
 
@@ -148,7 +161,7 @@ reportsRouter.get(
     if (!row) throw new HttpError(404, "not_found", "Report not found");
     const ups = await upvotedSet(req.user?.id, [row.id]);
     const detail: ReportDetail = {
-      ...toReport(row, ups?.has(row.id)),
+      ...toReport(row, { upvoted: ups?.has(row.id), viewerId: req.user?.id, ai: true }),
       events: await fetchEvents(row.id),
       aiSuggestion: row.ai_suggestion ?? null,
     };
@@ -207,6 +220,26 @@ reportsRouter.post(
     await db().from("reports").update({ status: "reopened", updated_at: new Date().toISOString() }).eq("id", id);
     await recordEvent({ reportId: id, from: row.status, to: "reopened", actorId: user.id });
     const updated = await fetchReport(id);
-    res.json(toReport(updated!));
+    res.json(toReport(updated!, { viewerId: user.id }));
+  })
+);
+
+reportsRouter.delete(
+  "/:id",
+  requireAuth,
+  wrap(async (req, res) => {
+    const id = String(req.params.id);
+    const user = req.user!;
+    const row = await fetchReport(id);
+    if (!row) throw new HttpError(404, "not_found", "Report not found");
+    if (row.reporter_id !== user.id && user.role !== "admin") {
+      throw new HttpError(403, "forbidden", "Only the reporter or an admin can delete this report");
+    }
+    const paths = row.report_media.map((m) => m.storage_path);
+    if (paths.length) await db().storage.from(config.mediaBucket).remove(paths);
+    const { error } = await db().from("reports").delete().eq("id", id);
+    if (error) throw error;
+    await audit(user.id, "report.delete", id, { title: row.title, by: user.role });
+    res.status(204).end();
   })
 );

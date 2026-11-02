@@ -16,14 +16,20 @@ Errors always look like `{ "error": { "code": "...", "message": "..." } }`.
 | POST `/reports/:id/reopen` | citizen (owner) | Reopen a resolved report |
 | POST `/media/upload-url` | logged in | Signed upload URL |
 | GET `/notifications`, POST `/notifications/:id/read` | logged in | My notifications |
-| POST `/ai/suggest` | logged in | Advisory AI (501 if disabled) |
-| GET `/staff/reports` | staff, admin | Department queue |
-| POST `/staff/reports/:id/transition` | staff, admin | Status change (409 if invalid) |
-| GET `/staff/workers` | staff, admin | Workers in my department |
-| GET `/admin/analytics` | admin | Aggregates |
-| `/admin/departments`, `/admin/workers`, `/admin/routing` | admin | CRUD |
-| PUT `/admin/users/:id/role` | admin | Set role/department |
-| GET `/admin/audit-logs` | admin | Read-only log |
+| DELETE `/reports/:id` | reporter, admin | Delete a report (audited) |
+| GET `/departments` | anyone | Department names for labels and dropdowns |
+| GET `/stats/public` | anyone | Live Impact page numbers (no personal data) |
+| GET/POST `/me/areas`, DELETE `/me/areas/:id` | logged in | Saved areas (max 10); used with the `bbox` list filter |
+| POST `/ai/suggest` | logged in | Advisory triage: Groq if enabled, keyword rules otherwise (`source` says which) |
+| POST `/ai/chat` | anyone | PulseBot. Looks up a mentioned `CIV-` id; Groq if enabled, rules otherwise |
+| GET `/staff/reports` | staff, admin | Department queue, highest priority first, includes `aiSuggestion` |
+| POST `/staff/reports/:id/transition` | staff, admin | Status change. 409 if invalid. `assigned` needs `workerId`, `resolved` needs `proofMediaId`, `duplicate` needs `duplicateOf` |
+| GET `/staff/workers` | staff, admin | Active workers with `activeTasks` / `capacity` |
+| GET `/admin/analytics` | admin | Totals, weekly volume, by category, hotspots, department workload, worker availability |
+| `/admin/departments`, `/admin/workers` | admin | CRUD (delete fails with 409 if in use) |
+| GET/PUT `/admin/routing` | admin | Category to department rules |
+| GET `/admin/users`, PUT `/admin/users/:id/role` | admin | List users; set role (and department for staff) |
+| GET `/admin/audit-logs` | admin | Admin actions plus every status change, newest first |
 
 ## Changing the contract
 1. Open an issue labelled `contract` describing the need (field, endpoint, reason).

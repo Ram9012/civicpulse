@@ -7,7 +7,9 @@ import { errorHandler } from "./lib/http.js";
 import { mediaRouter } from "./routes/media.js";
 import { notificationsRouter } from "./routes/notifications.js";
 import { reportsRouter } from "./routes/reports.js";
-import { adminRouter, aiRouter, staffRouter } from "./routes/stubs.js";
+import { adminRouter } from "./routes/admin.js";
+import { aiRouter, areasRouter, publicRouter } from "./routes/misc.js";
+import { staffRouter } from "./routes/staff.js";
 
 export function createApp() {
   const app = express();
@@ -28,6 +30,8 @@ export function createApp() {
   });
 
   app.get("/me", requireAuth, (req, res) => res.json(req.user));
+  app.use("/me/areas", areasRouter);
+  app.use(publicRouter);
   app.use("/reports", reportsRouter);
   app.use("/media", mediaRouter);
   app.use("/notifications", notificationsRouter);

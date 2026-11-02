@@ -16,4 +16,5 @@ export const config = {
   mediaBucket: process.env.SUPABASE_MEDIA_BUCKET ?? "report-media",
   aiEnabled: process.env.AI_ENABLED === "true",
   groqApiKey: process.env.GROQ_API_KEY ?? "",
+  groqModel: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
 };
