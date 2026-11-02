@@ -39,7 +39,7 @@ Admin analytics -> reads the same tables
 ```
 
 ## Data model
-`departments`, `profiles`, `routing_rules`, `workers` (with `capacity`), `reports` (with `resolved_at`, `ai_suggestion`), `report_media` (with `uploader_id`), `report_events`, `upvotes`, `notifications`, `audit_logs`, `saved_areas`. SQL: `apps/api/db/migrations/0001` to `0003`.
+`departments`, `profiles`, `routing_rules`, `workers` (with `capacity`), `reports` (with `resolved_at`, `ai_suggestion`), `report_media` (with `uploader_id`), `report_events`, `upvotes`, `notifications`, `audit_logs`, `saved_areas`. SQL: `apps/api/db/migrations/0001` to `0004`.
 - `report_events` is the single history table. It powers the timeline, the audit log and notification text.
 - Public responses expose `area_label` (coarse) and hide the reporter when `anonymous`, including on the timeline. Exact coordinates are used for the map pin only.
 
