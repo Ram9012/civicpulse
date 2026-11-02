@@ -25,7 +25,7 @@ You are assisting **Bipin**, who builds the **backend**. Nothing else.
 - Pushing to `main` or `dev`, or merging into either (push your feature branch and open a PR **into `dev`**).
 
 ## What you do
-- Implement stubs in `apps/api/src/routes/` per the contract; one file per area
+- Routes are implemented in `apps/api/src/routes/` per the contract (one file per area); you extend, test and harden them
 - Validate every input with Zod; return the standard error shape `{ error: { code, message } }`
 - Enforce role + department scoping (staff only see their department)
 - Status changes: validate with `canTransition`, update `reports`, insert `report_events`, insert `notifications` for the reporter

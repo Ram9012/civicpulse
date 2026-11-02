@@ -57,10 +57,9 @@ Reviews and merges every PR, owns the contract, CI/CD, deployment, Supabase/Rend
 3. Keep working on something else, or on your mock.
 
 ## Milestones
-| | Goal | Jerome | Bipin | Ramansh |
+Built so far (see `docs/scope.md`): M1 citizen core, M2 staff workflow, M3 admin, M4 extras (languages, offline, voice, AI, map tools, info pages).
+
+| Phase | Goal | Jerome | Bipin | Ramansh |
 |---|---|---|---|---|
-| M0 | Deployed hello-world | - | - | Repo, Supabase, Render, UptimeRobot, CI |
-| M1 | Sign in + submit a report | Sign in, wizard, My reports | Auth, `/me`, media upload URL, `POST /reports`, `GET /reports` | Review, apply migration |
-| M2 | Staff workflow | Staff queue + detail + actions | `/staff/*` transitions, events, notifications | Review |
-| M3 | Admin + analytics | Admin pages | `/admin/*`, analytics | Review |
-| M4 | Polish and demo | Mobile polish, empty/error states | Seed script, hardening | Final QA, demo data |
+| Now | Harden and polish | Mobile/UX polish, empty and error states, component tests | API tests, input validation review, error messages | Review, apply migrations, deploy, verify |
+| Next | Pilot with real users | UX fixes from feedback; translate remaining admin strings | Fix bugs from feedback; tune duplicate radius and priority thresholds | Monitor, run migrations, promote `dev` to `main` |

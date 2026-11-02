@@ -26,7 +26,7 @@ Per `docs/ux-guidelines.md` and `docs/scope.md`:
 - Pages and features under `apps/web/src/features/{auth,report,explore,my,staff,admin}`
 - Shared UI in `apps/web/src/components`
 - API access through `apps/web/src/lib/api.ts` using types from `@civicpulse/contract`
-- Mock data in `apps/web/src/mocks` (controlled by `VITE_USE_MOCKS`)
+- Test fixtures only in `*.test.tsx` files; the product itself always uses real API data
 - Loading, empty and error states for every data view
 - Mobile first (360px), max 4 nav items per role, accessible (labels, focus, 44px targets)
 - Status shown as text + icon + color via one shared `StatusBadge`

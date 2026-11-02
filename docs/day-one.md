@@ -34,9 +34,11 @@ npm run dev:web     # Jerome: http://localhost:5173
 5. [ux-guidelines.md](ux-guidelines.md) (Jerome) or `apps/api/README.md` (Bipin)
 
 ## 6. Your first task
-**Jerome**: In `apps/web`, replace the Home placeholder with a real landing section: one headline, one "Report an issue" button, a link to Explore. Mobile first. No fake stats. PR title `feat(web): home page`.
+All milestones (citizen, staff, admin, extras) are already built. Read the code before changing it; your first PRs are quality work.
 
-**Bipin**: In `apps/api`, implement `GET /reports` (list, filters `category`, `status`, `q`, `page`) against Supabase, with Zod-validated query params and a vitest test. Public response must not include reporter identity. PR title `feat(api): list reports`.
+**Jerome**: Walk the app at 360px width as a citizen, staff member and admin. Fix layout, spacing and empty/error states you find, and add component tests for `ReportCard`, `StatusBadge` and the report wizard steps. Do not add features. PR title `fix(web): mobile polish and tests`.
+
+**Bipin**: Add API tests for the report routes and the staff transition rules (mock the Supabase client): invalid transitions return 409, staff cannot touch another department's report, anonymous reports never expose the reporter, `assigned` needs a valid worker, `resolved` needs a proof photo. Do not change response shapes. PR title `test(api): report and staff route coverage`.
 
 ## 7. Open your first PR
 ```bash

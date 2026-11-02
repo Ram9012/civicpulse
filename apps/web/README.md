@@ -9,7 +9,7 @@ npm run dev:web        # http://localhost:5173
 ```
 
 - Server calls go through `src/lib/api.ts`. Types come from `@civicpulse/contract` (read-only for you).
-- While the API is unfinished, develop against mock data in `src/mocks/` (create it; keep `VITE_USE_MOCKS=true`).
+- The full API is available locally (`npm run dev:api`); use real data. Seed departments, workers and a staff/admin account (see docs/deployment.md) to exercise every portal.
 - Server state: TanStack Query (already polling every 10s). No Redux or extra state libs.
 - Suggested layout: `src/features/{report,explore,staff,admin,auth}/`, shared UI in `src/components/`.
 - Follow `docs/ux-guidelines.md`. Mobile first, max 4 nav items per role.
