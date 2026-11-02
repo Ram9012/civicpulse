@@ -190,10 +190,10 @@ adminRouter.get(
   "/audit-logs",
   wrap(async (_req, res) => {
     const [logs, events] = await Promise.all([
-      db().from("audit_logs").select("id,action,target,detail,created_at,actor:profiles(name)").order("created_at", { ascending: false }).limit(100),
+      db().from("audit_logs").select("id,action,target,detail,created_at,actor:profiles!actor_id(name)").order("created_at", { ascending: false }).limit(100),
       db()
         .from("report_events")
-        .select("id,report_id,from_status,to_status,note,created_at,actor:profiles(name)")
+        .select("id,report_id,from_status,to_status,note,created_at,actor:profiles!actor_id(name)")
         .order("created_at", { ascending: false })
         .limit(100),
     ]);

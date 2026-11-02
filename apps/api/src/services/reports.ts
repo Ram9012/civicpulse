@@ -12,7 +12,7 @@ import { db } from "../db.js";
 
 /** PostgREST select that pulls everything a Report needs in one query. */
 export const REPORT_SELECT =
-  "*, reporter:profiles(name), upvotes(count), report_media(id,kind,stage,storage_path)";
+  "*, reporter:profiles!reporter_id(name), upvotes(count), report_media(id,kind,stage,storage_path)";
 
 export interface ReportRow {
   id: string;
@@ -79,12 +79,14 @@ export function toReport(row: ReportRow, opts: ToReportOpts = {}): Report {
 export async function upvotedSet(userId: string | undefined, ids: string[]): Promise<Set<string> | undefined> {
   if (!userId) return undefined;
   if (!ids.length) return new Set();
-  const { data } = await db().from("upvotes").select("report_id").eq("user_id", userId).in("report_id", ids);
+  const { data, error } = await db().from("upvotes").select("report_id").eq("user_id", userId).in("report_id", ids);
+  if (error) throw error;
   return new Set((data ?? []).map((r: { report_id: string }) => r.report_id));
 }
 
 export async function fetchReport(id: string): Promise<ReportRow | null> {
-  const { data } = await db().from("reports").select(REPORT_SELECT).eq("id", id).maybeSingle();
+  const { data, error } = await db().from("reports").select(REPORT_SELECT).eq("id", id).maybeSingle();
+  if (error) throw error; // a failed query must surface as an error, not as "not found"
   return (data as ReportRow | null) ?? null;
 }
 
@@ -96,11 +98,12 @@ export async function fetchEvents(
   reportId: string,
   hide?: { anonymous: boolean; reporterId: string | null }
 ): Promise<ReportEvent[]> {
-  const { data } = await db()
+  const { data, error } = await db()
     .from("report_events")
-    .select("id,report_id,from_status,to_status,note,created_at,actor_id,actor:profiles(name)")
+    .select("id,report_id,from_status,to_status,note,created_at,actor_id,actor:profiles!actor_id(name)")
     .eq("report_id", reportId)
     .order("created_at", { ascending: true });
+  if (error) throw error;
   type Row = {
     id: string;
     report_id: string;
@@ -171,7 +174,7 @@ export async function findNearby(
   const dLat = 0.0015; // ~165 m box, filtered precisely below
   const dLng = 0.0015 / Math.max(Math.cos((lat * Math.PI) / 180), 0.1);
   const since = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
-  const { data } = await db()
+  const { data, error } = await db()
     .from("reports")
     .select(REPORT_SELECT)
     .eq("category", category)
@@ -182,6 +185,7 @@ export async function findNearby(
     .gte("lng", lng - dLng)
     .lte("lng", lng + dLng)
     .limit(20);
+  if (error) throw error;
   return ((data ?? []) as unknown as ReportRow[]).filter(
     (r) => r.id !== excludeId && distanceMeters(lat, lng, r.lat, r.lng) <= radius
   );
