@@ -1,4 +1,4 @@
-// Shared types. OWNED BY THE ARCHITECT. Keep in sync with openapi.yaml.
+// Shared types. OWNED BY RAMANSH. Keep in sync with openapi.yaml.
 // Jerome and Bipin import from "@civicpulse/contract" and never edit this package.
 
 export type Role = "citizen" | "staff" | "admin";
@@ -10,6 +10,17 @@ export type Category =
   | "water"
   | "traffic"
   | "parks";
+
+export const CATEGORIES: Category[] = ["road", "streetlight", "garbage", "water", "traffic", "parks"];
+
+export const CATEGORY_LABELS: Record<Category, string> = {
+  road: "Road & pothole",
+  streetlight: "Streetlight & electricity",
+  garbage: "Garbage & sanitation",
+  water: "Water & drainage",
+  traffic: "Traffic & public safety",
+  parks: "Parks & public spaces",
+};
 
 export type Priority = "low" | "medium" | "high" | "critical";
 
@@ -31,6 +42,16 @@ export const STATUS_TRANSITIONS: Record<ReportStatus, ReportStatus[]> = {
   resolved: ["reopened"],
   duplicate: [],
   reopened: ["assigned"],
+};
+
+export const STATUS_LABELS: Record<ReportStatus, string> = {
+  submitted: "Submitted",
+  verified: "Verified",
+  assigned: "Assigned",
+  in_progress: "In progress",
+  resolved: "Resolved",
+  duplicate: "Duplicate",
+  reopened: "Reopened",
 };
 
 export interface Profile {
@@ -83,6 +104,7 @@ export interface Report {
   workerId: string | null;
   reporterName: string | null; // null when anonymous
   upvotes: number;
+  upvoted?: boolean; // present only when the caller is logged in
   media: MediaItem[];
   createdAt: string;
   updatedAt: string;
@@ -107,6 +129,40 @@ export interface Notification {
   message: string;
   read: boolean;
   createdAt: string;
+}
+
+export interface CreateReportInput {
+  category: Category;
+  description: string; // 5..1000 chars
+  lat: number;
+  lng: number;
+  areaLabel?: string; // coarse, public-safe label chosen by the client
+  anonymous?: boolean;
+  mediaIds: string[]; // from /media/upload-url, 1..5
+}
+
+export interface CreateReportResponse {
+  report: Report;
+  nearbyDuplicates: Report[];
+}
+
+export interface ReportListResponse {
+  items: Report[];
+  total: number;
+}
+
+export interface UploadUrlRequest {
+  kind: "photo" | "video";
+  contentType: string;
+  stage?: MediaItem["stage"]; // non-"original" is staff/admin only
+}
+
+/** Upload with supabase.storage.from(bucket).uploadToSignedUrl(path, token, file). */
+export interface UploadUrlResponse {
+  mediaId: string;
+  path: string;
+  token: string;
+  publicUrl: string;
 }
 
 export interface ApiError {

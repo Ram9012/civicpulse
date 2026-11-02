@@ -1,44 +1,25 @@
 # Scope
 
-## In scope (the prototype)
-**Citizen**
-- Sign up / sign in (email + password via Supabase Auth)
-- Report wizard: add photo or video, pin location on map (auto-detect, adjustable), category + description, anonymous toggle
-- Duplicate nudge: show nearby similar reports; "Confirm" (upvote) instead of filing a new one
-- "My reports" with status timeline; in-app notifications; reopen a resolved report
-- Public Explore: list + map, filter by category/status, search by area
+**Decision (Ramansh):** we are rebuilding the reference site with **full feature parity**, on our own infra (React + Express + Supabase + Render), with our cleaner UX and role-based auth. Features are delivered in milestones; each milestone is one reviewed PR into `dev`.
 
-**Staff**
-- Department queue with filters
-- Verify, mark duplicate, assign worker, start work, resolve with proof photo
-- Report detail with timeline
+## Feature roadmap
+| Milestone | Features | Status |
+|---|---|---|
+| **M1 Citizen core** | Sign up/in; 3-step report wizard (photo/video upload, map pin + geolocation, category, description, anonymous); duplicate nudge (`/reports/nearby`) + "confirm" (upvote) with priority bump; Explore list + map with category/status/area filters; report detail with status timeline; My reports; in-app notifications; reopen resolved report | in PR |
+| **M2 Staff workflow** | Department queue; verify, mark duplicate, assign field worker, start work, resolve with proof photo; on-site photos; staff map view; timeline + notifications to the citizen | planned |
+| **M3 Admin** | Departments, workers, routing rules, user roles; analytics (volume, resolution time, department workload, hotspots, worker availability); audit log; report deletion (reporter or admin, audited) | planned |
+| **M4 Parity extras** | Kannada / Hindi UI; offline drafts with auto-sync; voice description (speech to text); AI triage (Groq: category, priority, summary, keywords, duplicate probability; staff approve/edit); PulseBot assistant; map clusters / heatmap / satellite layer / export; saved areas; Impact, How it works and Help pages | planned |
 
-**Admin**
-- Everything staff can do, across departments
-- Manage departments, workers, category-to-department routing, user roles
-- Analytics: counts by status/category/department, average resolution time
-- Read-only audit log
-
-**Platform**
-- Deployed on Render + Supabase, UptimeRobot keep-alive, CI on every PR
-
-## Stretch (only after M4, only if Ramansh says so)
-- Kannada / Hindi UI
-- Offline report drafts with later sync
-- AI suggestion (Groq) for category/priority; advisory only, behind `AI_ENABLED`
-- PulseBot chat assistant
-- Email / SMS notifications
+## Deliberate differences from the reference site
+- Real accounts and roles. **No public admin credentials** and no quick-fill login; admin is a normal account promoted in the database.
+- **No fake data**: no demo counters, placeholder testimonials, or hardcoded sample reports in the product. Numbers come from the database.
+- Delete is available only behind login (reporter or admin) and is audited, never as a public button.
+- Cleaner layout: one primary action per screen, max 4 nav items per role (see `ux-guidelines.md`).
+- Updates reach other portals by polling every 10 s, not websockets.
 
 ## Out of scope (do not build, do not propose)
-- Geofences, heatmaps, department zones, ward boundary editing
 - Native mobile apps
 - Payments, multi-city / multi-tenant support
-- Realtime websockets (we poll)
+- Realtime websockets
 - Microservices, queues, caches, Kubernetes, anything "enterprise"
-- Role/permission editors beyond the three fixed roles
-- Public display of the demo "impact counters" with fake numbers
-
-## Rules for the UI that follow from this
-- Do not copy the old site's clutter. One primary action per screen.
-- Never show fake or placeholder statistics.
-- Never display admin credentials or secrets anywhere in the UI.
+- Role / permission editors beyond the three fixed roles (citizen, staff, admin)

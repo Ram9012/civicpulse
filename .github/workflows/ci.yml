@@ -39,6 +39,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
+      - run: npm run build:contract
       - run: npm run lint -w apps/web
       - run: npm run typecheck -w apps/web
       - run: npm run test -w apps/web
@@ -53,6 +54,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
+      - run: npm run build:contract
       - run: npm run lint -w apps/api
       - run: npm run typecheck -w apps/api
       - run: npm run test -w apps/api

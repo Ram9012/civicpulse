@@ -9,6 +9,7 @@ Errors always look like `{ "error": { "code": "...", "message": "..." } }`.
 | GET `/health` | anyone | Liveness + DB ping |
 | GET `/me` | logged in | My profile (role, department) |
 | GET `/reports` | anyone | List (filters: category, status, q, mine, bbox, page) |
+| GET `/reports/nearby` | anyone | Open same-category reports within ~100 m (duplicate nudge) |
 | POST `/reports` | citizen | Create; returns report + nearby duplicates |
 | GET `/reports/:id` | anyone | Detail + event timeline |
 | POST `/reports/:id/upvote` | logged in | Toggle confirm |

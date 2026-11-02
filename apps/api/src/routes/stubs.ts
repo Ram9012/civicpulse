@@ -4,22 +4,8 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 const notImplemented = (_req: unknown, res: { status: (n: number) => { json: (b: unknown) => void } }) =>
   res.status(501).json({ error: { code: "not_implemented", message: "TODO (Bipin) - see packages/contract/openapi.yaml" } });
 
-// Route stubs mirror packages/contract/openapi.yaml. Bipin replaces each 501 with a real handler.
+// Remaining route stubs (staff, admin, ai) mirror packages/contract/openapi.yaml. Bipin replaces each 501 with a real handler.
 // Keep one file per area when you implement (reports.ts, staff.ts, admin.ts, media.ts, notifications.ts).
-
-export const reportsRouter = Router();
-reportsRouter.get("/", notImplemented);
-reportsRouter.post("/", requireAuth, notImplemented);
-reportsRouter.get("/:id", notImplemented);
-reportsRouter.post("/:id/upvote", requireAuth, notImplemented);
-reportsRouter.post("/:id/reopen", requireAuth, notImplemented);
-
-export const mediaRouter = Router();
-mediaRouter.post("/upload-url", requireAuth, notImplemented);
-
-export const notificationsRouter = Router();
-notificationsRouter.get("/", requireAuth, notImplemented);
-notificationsRouter.post("/:id/read", requireAuth, notImplemented);
 
 export const staffRouter = Router();
 staffRouter.use(requireAuth, requireRole("staff", "admin"));

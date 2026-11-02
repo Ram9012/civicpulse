@@ -3,14 +3,11 @@ import express from "express";
 import { config } from "./config.js";
 import { db } from "./db.js";
 import { requireAuth } from "./middleware/auth.js";
-import {
-  adminRouter,
-  aiRouter,
-  mediaRouter,
-  notificationsRouter,
-  reportsRouter,
-  staffRouter,
-} from "./routes/stubs.js";
+import { errorHandler } from "./lib/http.js";
+import { mediaRouter } from "./routes/media.js";
+import { notificationsRouter } from "./routes/notifications.js";
+import { reportsRouter } from "./routes/reports.js";
+import { adminRouter, aiRouter, staffRouter } from "./routes/stubs.js";
 
 export function createApp() {
   const app = express();
@@ -37,6 +34,8 @@ export function createApp() {
   app.use("/staff", staffRouter);
   app.use("/admin", adminRouter);
   app.use("/ai", aiRouter);
+
+  app.use(errorHandler);
 
   return app;
 }
