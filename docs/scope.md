@@ -22,7 +22,7 @@
 **Platform**
 - Deployed on Render + Supabase, UptimeRobot keep-alive, CI on every PR
 
-## Stretch (only after M4, only if the Architect says so)
+## Stretch (only after M4, only if Ramansh says so)
 - Kannada / Hindi UI
 - Offline report drafts with later sync
 - AI suggestion (Groq) for category/priority; advisory only, behind `AI_ENABLED`

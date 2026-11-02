@@ -8,5 +8,5 @@
 | 401 everywhere | Web and API point at different Supabase projects, or token expired |
 | 403 for staff | Their `profiles.role` / `department_id` not set; admin fixes it in Admin > Users |
 | Upload fails | Bucket `report-media` missing or not public; signed URL expired |
-| CI `scope` check fails | You changed files outside your area. Revert those files, or ask the Architect |
+| CI `scope` check fails | You changed files outside your area. Revert those files, or ask Ramansh |
 | `Cannot find module '@civicpulse/contract'` | Run `npm run build:contract` (dev scripts do this automatically) |

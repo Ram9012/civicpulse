@@ -1,4 +1,4 @@
--- CivicPulse initial schema. Run in the Supabase SQL editor (Architect applies; Bipin proposes via PR).
+-- CivicPulse initial schema. Run in the Supabase SQL editor (Ramansh applies; Bipin proposes via PR).
 -- Auth users live in Supabase's auth.users; profiles extends them.
 
 create table departments (

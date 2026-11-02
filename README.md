@@ -17,7 +17,7 @@ This is a **prototype**, rebuilt from a demo site with a cleaner UX. Deployed on
 ```
 apps/web          React app           (Jerome)
 apps/api          Express API + SQL   (Bipin)
-packages/contract API contract + types (Architect)
+packages/contract API contract + types (Ramansh)
 docs/             Read these first
 .agents/          Rules for AI coding agents
 scripts/          Scope enforcement
@@ -26,7 +26,7 @@ scripts/          Scope enforcement
 ## Quick start
 ```bash
 npm install
-cp .env.example .env      # get real values from the Architect
+cp .env.example .env      # get real values from Ramansh
 npm run dev:api           # http://localhost:4000/health
 npm run dev:web           # http://localhost:5173
 ```
@@ -46,4 +46,4 @@ npm run dev:web           # http://localhost:5173
 | Jerome | Frontend only | `apps/web/**` |
 | Bipin | Backend only | `apps/api/**` |
 
-Nothing is merged or deployed without the Architect's review.
+Nothing is merged or deployed without Ramansh's review.

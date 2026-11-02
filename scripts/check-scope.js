@@ -22,7 +22,7 @@ const roleName = Object.keys(roles).find((r) =>
 
 if (!roleName) {
   console.error(
-    `"${author}" is not listed in .github/scope-map.json. Ask the Architect to add you before opening PRs.`
+    `"${author}" is not listed in .github/scope-map.json. Ask Ramansh to add you before opening PRs.`
   );
   process.exit(1);
 }

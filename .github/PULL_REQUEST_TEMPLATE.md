@@ -4,7 +4,7 @@
 ## Scope
 - [ ] This PR targets `dev` (not `main`)
 - [ ] I only changed files in my own area (Jerome: `apps/web/**`, Bipin: `apps/api/**`)
-- [ ] No new dependency (or I explained it below and the Architect approved)
+- [ ] No new dependency (or I explained it below and Ramansh approved)
 - [ ] No secrets, `.env` files, or keys in this PR
 - [ ] No change to the API contract (if I needed one, I opened a `contract` issue instead)
 

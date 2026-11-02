@@ -16,10 +16,10 @@ You are assisting **Jerome**, who builds the **frontend**. Nothing else.
 - Writing backend logic, serverless functions, or SQL "to unblock" the UI. Use mocks instead.
 - Inventing endpoints, response fields or enum values. If it is not in `packages/contract`, it does not exist.
 - Calling Supabase tables directly from the browser. Only Supabase Auth (sign in/up) and the signed upload URL go to Supabase; all data goes through the API.
-- Adding npm packages (ask the Architect). State/UI libs beyond React, React Router, TanStack Query, Tailwind, Leaflet are not needed.
+- Adding npm packages (ask Ramansh). State/UI libs beyond React, React Router, TanStack Query, Tailwind, Leaflet are not needed.
 - Using any secret other than public `VITE_*` values. Never reference the service-role key.
 - Adding the old site's clutter: announcement banners, fake counters, testimonials, hardcoded credentials, language switchers (stretch only).
-- Pushing to `main` or `dev`, or merging into either (push your feature branch and open a PR **into `dev`**; `scripts/git-guard.js` blocks both).
+- Pushing to `main` or `dev`, or merging into either (push your feature branch and open a PR **into `dev`**).
 
 ## What you do
 Per `docs/ux-guidelines.md` and `docs/scope.md`:

@@ -1,6 +1,6 @@
 # ADR 0001: Minimal stack
 
-**Status:** accepted. **Decider:** Architect.
+**Status:** accepted. **Decider:** Ramansh.
 
 ## Decision
 Monorepo with React/Vite web, Express API, Supabase (Postgres + Auth + Storage), Render hosting, UptimeRobot keep-alive.

@@ -1,6 +1,6 @@
 import { STATUS_TRANSITIONS, type ReportStatus, type Role } from "@civicpulse/contract";
 
-/** Who may trigger a transition. Architect-owned core: change only via the Architect. */
+/** Who may trigger a transition. Ramansh-owned core: change only via Ramansh. */
 const ROLE_FOR_TARGET: Record<ReportStatus, Role[]> = {
   submitted: [],
   verified: ["staff", "admin"],

@@ -4,7 +4,7 @@ Goal for today: the app runs on your machine and you have opened one tiny PR.
 
 ## 1. Tools (15 min)
 - Node.js 20 or newer (`node -v`), npm, git
-- A GitHub account (give your username to the Architect so you are added to `.github/scope-map.json`)
+- A GitHub account (give your username to Ramansh so you are added to `.github/scope-map.json`)
 - An editor. If you use an AI agent, read [AGENTS.md](../AGENTS.md) first
 
 ## 2. Get the code
@@ -18,7 +18,7 @@ npm install
 ```bash
 cp .env.example .env
 ```
-Ask the Architect for the Supabase values (URL, anon key, service-role key). **Never commit `.env`, never paste keys in chat, issues or PRs.** Only Bipin needs the service-role key. Jerome only needs `VITE_*` values.
+Ask Ramansh for the Supabase values (URL, anon key, service-role key). **Never commit `.env`, never paste keys in chat, issues or PRs.** Only Bipin needs the service-role key. Jerome only needs `VITE_*` values.
 
 ## 4. Run it
 ```bash
@@ -48,25 +48,18 @@ git add <only your files>
 git commit -m "feat(web): home page"
 git push -u origin feat/<yourname>-<topic>
 ```
-Open a PR **into `dev`** (never `main`) using the template. CI must be green. The Architect reviews; do not merge it yourself.
+Open a PR **into `dev`** (never `main`) using the template. CI must be green. Ramansh reviews; do not merge it yourself.
 
-## 8. Using an AI agent
-Set your role before starting it, so the scope guard knows who you are:
-```bash
-# macOS / Linux / Git Bash
-export CONTRIB_ROLE=jerome     # or bipin
-# PowerShell
-$env:CONTRIB_ROLE = "jerome"
-```
-Easier: create the file `.claude/settings.local.json` (it is git-ignored, so it stays on your machine) with:
-```json
-{ "env": { "CONTRIB_ROLE": "jerome" } }
-```
-(use `"bipin"` if you are Bipin). Claude Code then picks it up every session.
+## 8. Using an AI agent (Antigravity)
+No setup needed. At the start of every session, tell the agent who you are:
 
-The agent will refuse to edit files outside your area. That is intentional.
+> I'm Jerome.   (or: I'm Bipin.)
 
-Optional: a code-graph tool (e.g. graphify) can help an agent navigate the repo. Ask the Architect before adding any tool or dependency.
+The agent reads `AGENTS.md` and your role file in `.agents/`, then works **only** inside your scope: Jerome gets `apps/web/**`, Bipin gets `apps/api/**`. If your task needs anything else, it will stop and tell you who to ask. That is intentional.
+
+If the agent does not seem to know the rules, tell it: "Read AGENTS.md first."
+
+Optional: a code-graph tool (e.g. graphify) can help an agent navigate the repo. Ask Ramansh before adding any tool or dependency.
 
 ## Who to ask
-Anything about scope, contract, env values, deployment: the Architect.
+Anything about scope, contract, env values, deployment: Ramansh.

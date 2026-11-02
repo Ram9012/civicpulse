@@ -7,10 +7,10 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 |---|---|---|---|
 | Web app | `apps/web/**` | **Jerome** | read-only |
 | API + DB SQL | `apps/api/**` | **Bipin** | read-only |
-| API contract + shared types | `packages/contract/**` | **Architect** | read-only |
-| CI/CD, deploy, scope rules | `.github/**`, `render.yaml`, `scripts/**`, `.claude/**` | **Architect** | read-only |
-| Docs and agent rules | `docs/**`, `.agents/**`, `*.md` at root | **Architect** | read-only |
-| Root config | `package.json`, lockfile, `.env.example` | **Architect** | read-only |
+| API contract + shared types | `packages/contract/**` | **Ramansh** | read-only |
+| CI/CD, deploy, scope rules | `.github/**`, `render.yaml`, `scripts/**`, `.claude/**` | **Ramansh** | read-only |
+| Docs and agent rules | `docs/**`, `.agents/**`, `*.md` at root | **Ramansh** | read-only |
+| Root config | `package.json`, lockfile, `.env.example` | **Ramansh** | read-only |
 
 ## Jerome (frontend only)
 **Does**
@@ -24,7 +24,7 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 - Touch anything outside `apps/web/**`
 - Write backend code, SQL, or serverless functions "just to unblock myself"
 - Edit the contract or types. Need a field? Open an issue labelled `contract`
-- Add dependencies without Architect approval
+- Add dependencies without Ramansh approval
 - Put secrets in code. Only `VITE_*` public values are allowed in the web app
 - Invent endpoints. If it is not in `openapi.yaml`, ask
 
@@ -40,16 +40,16 @@ These boundaries are enforced three ways: this document, the AI-agent rules in `
 **Does not**
 - Touch anything outside `apps/api/**`
 - Change response shapes or add endpoints not in the contract. Open a `contract` issue
-- Edit `statusMachine.ts` rules (Architect core). Use `canTransition()`
-- Apply migrations to the shared Supabase project. Architect runs them after review
-- Add dependencies without Architect approval
+- Edit `statusMachine.ts` rules (Ramansh core). Use `canTransition()`
+- Apply migrations to the shared Supabase project. Ramansh runs them after review
+- Add dependencies without Ramansh approval
 - Touch frontend, CI, or Render config
 
-## Architect
+## Ramansh
 Reviews and merges every PR, owns the contract, CI/CD, deployment, Supabase/Render/UptimeRobot setup, and some backend core (auth middleware, status machine).
 
 ## Branching
-`feat/*` (from `dev`) -> PR into `dev` -> Architect merges -> Architect promotes `dev` into `main` -> Render deploys. Contributors never PR or push to `main`.
+`feat/*` (from `dev`) -> PR into `dev` -> Ramansh merges -> Ramansh promotes `dev` into `main` -> Render deploys. Contributors never PR or push to `main`.
 
 ## When you need something outside your area
 1. Do **not** do it yourself.
@@ -57,7 +57,7 @@ Reviews and merges every PR, owns the contract, CI/CD, deployment, Supabase/Rend
 3. Keep working on something else, or on your mock.
 
 ## Milestones
-| | Goal | Jerome | Bipin | Architect |
+| | Goal | Jerome | Bipin | Ramansh |
 |---|---|---|---|---|
 | M0 | Deployed hello-world | - | - | Repo, Supabase, Render, UptimeRobot, CI |
 | M1 | Sign in + submit a report | Sign in, wizard, My reports | Auth, `/me`, media upload URL, `POST /reports`, `GET /reports` | Review, apply migration |

@@ -4,7 +4,7 @@ about: A unit of work assigned to one person
 labels: task
 ---
 
-**Owner:** <!-- jerome | bipin | architect -->
+**Owner:** <!-- jerome | bipin | ramansh -->
 **Milestone:** <!-- M1 | M2 | M3 | M4 -->
 
 ## Goal
@@ -20,4 +20,4 @@ labels: task
 <!-- What must NOT be touched -->
 
 ## Contract impact
-<!-- none | needs contract change (Architect decides) -->
+<!-- none | needs contract change (Ramansh decides) -->

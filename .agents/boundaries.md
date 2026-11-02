@@ -1,6 +1,6 @@
 # Boundaries at a glance
 
-| Path | architect | jerome | bipin |
+| Path | ramansh | jerome | bipin |
 |---|:-:|:-:|:-:|
 | `apps/web/**` | write | **write** | read |
 | `apps/api/**` | write | read | **write** |
@@ -9,12 +9,12 @@
 | `.github/**`, `render.yaml`, `scripts/**`, `.claude/**` | **write** | read | read |
 | `docs/**`, `.agents/**`, root `*.md`, root config | **write** | read | read |
 
-Enforcement layers (defence in depth):
-1. **Instructions**: `AGENTS.md` and the role files in this folder.
-2. **Local hooks**: `.claude/settings.json` runs `scripts/scope-guard.js` before every file edit and `scripts/git-guard.js` before every shell command, both reading `CONTRIB_ROLE`. Scope-guard blocks edits outside the role's paths; git-guard blocks direct pushes to `main` and `dev` for everyone except the Architect, who has no restrictions. Blocks use exit code 2.
-3. **CI**: `scope-check.yml` fails PRs that touch files outside the author's allowlist (read from the base branch, so a PR cannot widen its own permissions).
-4. **Review**: CODEOWNERS requires the Architect on every PR; only the Architect merges.
+Enforcement layers:
+1. **Instructions (primary)**: contributors tell their agent their name; `AGENTS.md` and the role file in this folder make the agent work only inside that scope.
+2. **CI**: `scope-check.yml` fails PRs that touch files outside the author's allowlist (read from the base branch, so a PR cannot widen its own permissions).
+3. **Review**: CODEOWNERS requires Ramansh on every PR; only Ramansh merges.
+4. **Optional local hooks (Ramansh's Claude Code only)**: `.claude/settings.json` runs `scripts/scope-guard.js` and `scripts/git-guard.js`, which read the `CONTRIB_ROLE` environment variable. Contributors use Antigravity and do not use these.
 
-Known gap: the edit hook sees the file-edit tools, not file changes made through arbitrary shell commands. Agents are instructed not to edit files through the shell; CI is the backstop.
+Known gap: instructions are not a technical lock. An agent that ignores them is caught by the CI scope check and by review. Branch protection on `main` and `dev` (set up by Ramansh) is what stops direct pushes.
 
-To change a boundary: only the Architect edits `.github/scope-map.json`.
+To change a boundary: only Ramansh edits `.github/scope-map.json`.

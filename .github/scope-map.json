@@ -1,8 +1,9 @@
 {
-  "_comment": "Single source of truth for who may change what. Used by scripts/scope-guard.js (local AI-agent hook) and scripts/check-scope.js (CI). Only the Architect edits this file. Replace the REPLACE_* GitHub usernames before using the scope check.",
+  "_comment": "Single source of truth for who may change what. Used by scripts/check-scope.js (CI) and the optional local hooks. Only Ramansh edits this file. Replace the remaining REPLACE_* GitHub usernames (Jerome, Bipin) before using the scope check.",
   "roles": {
-    "architect": {
-      "github": ["REPLACE_ARCHITECT_GITHUB_USERNAME"],
+    "ramansh": {
+      "description": "System architect",
+      "github": ["Ram9012"],
       "allow": ["**"]
     },
     "jerome": {

@@ -1,9 +1,9 @@
-# Agent rules: Architect
+# Agent rules: Ramansh (system architect)
 
 You are assisting the **system architect**, who reviews every PR and owns CI/CD, deployment, the contract and shared core.
 
 ## Allowed
-Whole repository (`CONTRIB_ROLE=architect`).
+Whole repository. Applies when your human says they are Ramansh.
 
 ## Your responsibilities
 - `packages/contract/**`: the single source of truth; change only via reasoned, minimal edits and keep `openapi.yaml` and `src/index.ts` in sync
@@ -20,6 +20,6 @@ Whole repository (`CONTRIB_ROLE=architect`).
 - CI green
 
 ## Still forbidden
-- Applying migrations to the shared database without the Architect running them
+- Applying migrations to the shared database without Ramansh running them
 - Adding new infrastructure or services without an ADR in `docs/adr/`
 - Committing secrets

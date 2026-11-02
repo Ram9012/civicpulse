@@ -13,4 +13,4 @@ npm run dev:web        # http://localhost:5173
 - Server state: TanStack Query (already polling every 10s). No Redux or extra state libs.
 - Suggested layout: `src/features/{report,explore,staff,admin,auth}/`, shared UI in `src/components/`.
 - Follow `docs/ux-guidelines.md`. Mobile first, max 4 nav items per role.
-- Adding a dependency needs Architect approval first.
+- Adding a dependency needs Ramansh approval first.

@@ -1,6 +1,6 @@
 # API contract
 
-The machine-readable source of truth is [`packages/contract/openapi.yaml`](../packages/contract/openapi.yaml) and types in `packages/contract/src/index.ts`. This page is the human summary. If they disagree, the YAML wins and you should tell the Architect.
+The machine-readable source of truth is [`packages/contract/openapi.yaml`](../packages/contract/openapi.yaml) and types in `packages/contract/src/index.ts`. This page is the human summary. If they disagree, the YAML wins and you should tell Ramansh.
 
 Errors always look like `{ "error": { "code": "...", "message": "..." } }`.
 
@@ -26,5 +26,5 @@ Errors always look like `{ "error": { "code": "...", "message": "..." } }`.
 
 ## Changing the contract
 1. Open an issue labelled `contract` describing the need (field, endpoint, reason).
-2. The Architect decides, edits the YAML and types, and merges.
+2. Ramansh decides, edits the YAML and types, and merges.
 3. Both Jerome and Bipin then rebase. Nobody else edits `packages/contract/**`.

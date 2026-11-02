@@ -36,7 +36,7 @@ process.stdin.on("end", () => {
   if (!isAllowed(role, rel)) {
     console.error(
       `SCOPE GUARD: role "${role}" may not modify "${rel}". Allowed: ${roles[role].allow.join(", ")}. ` +
-        `Stop. Tell your human this needs the Architect (open an issue or ask in the PR). Do not edit it another way.`
+        `Stop. Tell your human this needs Ramansh (open an issue or ask in the PR). Do not edit it another way.`
     );
     process.exit(2);
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Claude Code PreToolUse hook for Bash. Stops non-architect agents from pushing directly to main.
-// The Architect (CONTRIB_ROLE=architect) is unrestricted. Pushing feature branches is allowed for everyone.
+// Claude Code PreToolUse hook for Bash. Stops agents other than Ramansh from pushing directly to main.
+// Ramansh (CONTRIB_ROLE=ramansh) is unrestricted. Pushing feature branches is allowed for everyone.
 // Exit code 2 = block and show stderr to the agent.
 const { execSync } = require("child_process");
 
@@ -14,7 +14,7 @@ process.stdin.on("end", () => {
     process.exit(0);
   }
 
-  if ((process.env.CONTRIB_ROLE || "").toLowerCase() === "architect") process.exit(0);
+  if ((process.env.CONTRIB_ROLE || "").toLowerCase() === "ramansh") process.exit(0);
 
   // Look at each shell segment that is a `git push`.
   const segments = cmd.split(/&&|\|\||;|\n|\|/);
@@ -40,7 +40,7 @@ process.stdin.on("end", () => {
     if (hitsMain || pushesAll) {
       console.error(
         "GIT GUARD: pushing directly to main or dev is not allowed for your role. " +
-          "Create a branch (feat/<name>-<topic>), push that branch, and open a PR. Target the PR at dev. The Architect merges."
+          "Create a branch (feat/<name>-<topic>), push that branch, and open a PR. Target the PR at dev. Ramansh merges."
       );
       process.exit(2);
     }

@@ -4,7 +4,7 @@ info:
   version: 0.1.0
   description: >
     Single source of truth between frontend (Jerome) and backend (Bipin).
-    Owned by the Architect. Change via an issue labelled `contract`, never in a feature PR.
+    Owned by Ramansh. Change via an issue labelled `contract`, never in a feature PR.
 servers:
   - url: http://localhost:4000
   - url: https://civicpulse-api.onrender.com
