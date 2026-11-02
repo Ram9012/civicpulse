@@ -5,7 +5,7 @@ services:
     runtime: node
     rootDir: .
     plan: free
-    buildCommand: npm ci && npm run build -w apps/api
+    buildCommand: npm ci && npm run build:contract && npm run build -w apps/api
     startCommand: npm run start -w apps/api
     healthCheckPath: /health
     branch: main
@@ -32,7 +32,7 @@ services:
     rootDir: .
     branch: main
     autoDeploy: true
-    buildCommand: npm ci && npm run build -w apps/web
+    buildCommand: npm ci && npm run build:contract && npm run build -w apps/web
     staticPublishPath: apps/web/dist
     routes:
       - type: rewrite
