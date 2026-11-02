@@ -18,3 +18,4 @@
 | New role not visible | Role is cached for the session; sign out and in |
 | Web shows old API URL | `VITE_*` values are baked in at build time; redeploy with "Clear build cache" |
 | Assistant/AI always gives simple answers | `AI_ENABLED` is not `true` or `GROQ_API_KEY` is missing; the fallback is intentional |
+| Sign-up says `Database error saving new user` | Migration `0004_fix_signup_trigger.sql` not applied (the sign-up trigger could not find `profiles`) |
